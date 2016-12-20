@@ -1,0 +1,8 @@
+<table class="table">
+    <tr>
+	<th ng-repeat="column in listColumns">{{column}}</th>
+    </tr>
+    <tr ng-repeat="item in listItems">
+	<td ng-repeat="column in listColumns">{{item[$index]}}</td>
+    </tr>
+</table>

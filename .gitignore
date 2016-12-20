@@ -1,0 +1,12 @@
+# ignore files and folders starting with an underscore
+_*
+
+# ignore media files
+*.png
+*.jpg
+*.jpeg
+*.mp4
+*.gif
+
+# ignore TypeScript generated files
+node_modules

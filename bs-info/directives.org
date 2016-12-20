@@ -1,0 +1,10 @@
+| Directive     | Attributes                 | Template   | Description                                                                                                                                      |
+|---------------+----------------------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------|
+| <bs-value>    | title, list, view          | value.html | Get a single value from a column using a "Totals" function in the View settings.                                                                 |
+| <bs-pie>      | title, list, view, options | chart.html | Renders a Pie Chart. The given View should have 2 columns as key/value pairs. If a "Totals" value is set, duplicate labels are grouped together. |
+| <bs-line>     | title, list, view, options | chart.html | Renders a Line Chart.                                                                                                                            |
+| <bs-gauge>    | title, list, view, options | chart.html | Renders a gauge chart for each key found in the first column. Duplicate keys are grouped together.                                               |
+| <bs-column>   | title, list, view, options | chart.html | Renders a Column Chart. First column are the keys on the X-axis, or, additional columns are categories on the Y-axis                             |
+| <bs-histogram | title, list, view, options | chart.html | Renders a Histogram.                                                                                                                             |
+| <bs-list>     | title, list, view          | list.html  | Creates a <table> according to some View settings.                                                                                               |
+|---------------+----------------------------+------------+--------------------------------------------------------------------------------------------------------------------------------------------------|
