@@ -32,9 +32,9 @@ module.directive( "bsValue", ['SPData', function(SPData) {
 		_spData.getValue(attributes.list, attributes.view).then(function (result) {
 		    switch(attributes.format)
 		    {
-			case "currency":
+		    case "currency":
 			$scope.value = bsFormatSPCurrency(result, false);
-			    break;
+			break;
 			default:
 			    $scope.value = result;
 			    break;

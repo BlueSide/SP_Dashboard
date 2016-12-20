@@ -11,7 +11,7 @@
  */
 
 //TODO: Fix
-function bsFormatSPCurrency(input, prefixCurrencySymbol)
+function bsFormatSPCurrency(input: number, prefixCurrencySymbol: boolean): string
 {
     // Check if input is actually a valid number
     if (!isNaN(input))
@@ -24,11 +24,10 @@ function bsFormatSPCurrency(input, prefixCurrencySymbol)
             neg = true;
             input = Math.abs(input);
         }
-	
         // Parse as float and fix to two decimals
-	input = parseFloat(input).toFixed(2);	
+	var result: string = input.toFixed(2);	
         // Replace the default period with a comma
-        var result: string = input.toString().replace('.', ',');
+        result = result.toString().replace('.', ',');
         // Place a period after every third digit
         result = result.replace(/(\d)(?=(\d{3})+\,)/g, '$1.');
 
@@ -44,11 +43,11 @@ function bsFormatSPCurrency(input, prefixCurrencySymbol)
     }
 }
 
-function setCookie(cname, cvalue, exdays)
+function setCookie(cname: string, cvalue:string , exdays: number): void
 {
-    var d = new Date();
-    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-    var expires = "expires=" + d.toUTCString();
+    var date:Date = new Date();
+    date.setTime(date.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires:string = "expires=" + date.toUTCString();
     document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
 }
 
