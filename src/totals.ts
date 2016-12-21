@@ -1,3 +1,4 @@
+/*
 function group(inputData, method, columnIndex)
 {
     //NOTE: IE default parameter fix
@@ -66,8 +67,8 @@ function group(inputData, method, columnIndex)
 
     return result;
 }
-
-function group2(inputData, columnIndex)
+*/
+function group2(inputData, columnIndex): {}
 {
     var group = [];
     var result = {};
@@ -89,38 +90,25 @@ function group2(inputData, columnIndex)
     return result;
 }
 
-
-function SUM2(data)
+function SUM(data: number[])
 {
-    var sum = [];
-    for(var i = 0; i < data[0].length; i++)
+    if(data.length > 0)
     {
-	sum.push(0);
-	for(var j = 0; j < data.length; j++)
-	{
-	    sum[i] += data[j][i];
+	function parseIntForSum(str) {
+	    var possibleInteger = parseInt(str);
+	    return isNaN(possibleInteger) ? 0 : possibleInteger;
 	}
+
+	function sum(f, s) {
+	    return parseIntForSum(f) + parseIntForSum(s);
+	}
+
+	return data.reduce(sum);
     }
-    
-    return sum;
+    return null;
 }
 
-
-function SUM(data)
-{
-    function parseIntForSum(str) {
-	var possibleInteger = parseInt(str);
-	return isNaN(possibleInteger) ? 0 : possibleInteger;
-    }
-
-    function sum(f, s) {
-	return parseIntForSum(f) + parseIntForSum(s);
-    }
-
-    return data.reduce(sum);
-}
-
-function COUNT(data)
+function COUNT(data: number[])
 {
     return data.length;
 }
@@ -140,7 +128,7 @@ function COUNT2(data)
     return sum;
 }
 
-function AVG(data: number)
+function AVG(data: number[])
 {
     var sum: number = SUM(data);
     var count: number = COUNT(data);
@@ -149,32 +137,11 @@ function AVG(data: number)
     {
 	return 0;
     }
-
-    return Math.round((sum / count));
-}
-
-function AVG2(data)
-{
-    var sum = 0;
-    var count: number = 0;
-    for(var i = 0; i < data[0].length; i++)
-    {
-	for(var j = 0; j < data.length; j++)
-	{
-	    sum += data[j][i];
-	    count++;
-	}
-    }
-    var average = [0];
     
-    if(sum[0] !== 0)
-    {
-	average[0] = Math.round(sum / count);
-    }
-    return average;
+    return sum / count;
 }
 
-function MIN(data)
+function MIN(data: number[])
 {
     return data.reduce(function(a, b, i, data) {
 	return Math.min(a,b);
@@ -199,27 +166,9 @@ function MIN2(data)
     return min;
 }
 
-function MAX(data)
+function MAX(data: number[])
 {
-    return Math.max(data);
-}
-
-function MAX2(data)
-{
-    
-    var max = [];
-    for(var i = 0; i < data[0].length; i++)
-    {
-	max.push(0);
-	for(var j = 0; j < data.length; j++)
-	{
-	    if (data[j][i] > max)
-	    {
-		max[0] = data[j][i];
-	    }
-	}
-    }
-    return max;
+    return Math.max.apply(null, data);
 }
 
 function VAR(data)

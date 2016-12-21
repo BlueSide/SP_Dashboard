@@ -224,15 +224,16 @@
 		    <div class="panel panel-default">
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Bedrag per sector per jaar</div>
-			    <bs-chart type="ColumnChart" list="Dossiers" view="Bedrag per sector per jaar" options="templates/columnchart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+			    <!-- <bs-chart type="ColumnChart" list="Dossiers" view="Bedrag per sector per jaar" options="templates/columnchart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart> -->
+			    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="templates/linechart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
 		</div>
 		<div class="col-md-6">
 		    <div class="panel panel-default">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Bedrag per sector per jaar</div>
-			    <bs-chart type="LineChart" list="Dossiers" view="Bedrag per sector per jaar" options="templates/linechart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
+			    <bs-chart type="ColumnChart" list="Dossiers" view="Average TRL per phase per sector" options="templates/columnchart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
 		</div>

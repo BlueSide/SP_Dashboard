@@ -7,6 +7,13 @@ declare var google: any;
 interface Node {
     getAttribute(attr: string): string;
 }
+
+interface SPField {
+    title: string;
+    dataType: string;
+}
+
+
 /*
 interface chart {
     wrapper;
@@ -14,7 +21,10 @@ interface chart {
 }
 */
 // Time in milliseconds between refreshing data
-var RELOAD_TIMEOUT: number = 1000;
+const RELOAD_TIMEOUT: number = 1000;
+
+const FUNNEL_LIST_TITLE: string = "Dossiers";
+const FUNNEL_VIEW_TITLE: string = "Funnel";
 
 var liveUpdate: boolean = false;		// Value stored in cookie, this sets the default value for first use
 var liveUpdatePause: boolean = false;
@@ -22,7 +32,7 @@ var liveUpdatePause: boolean = false;
 var module = angular.module('bsDashboard', []);
 var spContext;
 
-var SITE_ROOT: string = 'https://portal.addventure.nl/blueside/';
+const SITE_ROOT: string = 'https://portal.addventure.nl/blueside/';
 
 module.controller('initController', ['$scope', '$rootScope', '$timeout', 'SPData', function($rootScope, $scope, $timeout, SPData) {
     
@@ -67,7 +77,7 @@ module.controller('liveUpdateController', ['$scope', 'SPData', function($scope, 
     $scope.cbLiveUpdate = liveUpdate;
     $scope.onLiveUpdateClick = function(): void {
         liveUpdate = $scope.cbLiveUpdate;
-        setCookie("liveUpdate", liveUpdate, 30);
+        setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
     };
 }]);
 
@@ -87,7 +97,6 @@ module.service('SPData', function($http, $q, $interval): void {
         if (chartsReady === charts.length) {
             $interval(function(): void {
                 if (liveUpdate && !liveUpdatePause) {
-                    console.log("Update");
                     self.drawAllCharts();
                 }
             }, RELOAD_TIMEOUT);
@@ -111,13 +120,13 @@ module.service('SPData', function($http, $q, $interval): void {
         liveUpdatePause = true;
     };
 
-    this.getValue = function(listTitle, viewTitle): any {
+    this.getValue = function(listTitle: string, viewTitle: string): any {
         return $q(function(success, error): any {
             // Define context and determine list and view
             var context = new SP.ClientContext.get_current();
             var list = context.get_web().get_lists().getByTitle(listTitle);
             var view = list.get_views().getByTitle(viewTitle);
-            var fields = list.get_fields();
+            //var fields = list.get_fields();
             // Get all columns selected in View editor
             var viewFields = view.get_viewFields();
             context.load(viewFields);
@@ -125,7 +134,7 @@ module.service('SPData', function($http, $q, $interval): void {
             context.executeQueryAsync(
                 function(sender, args) {
                     var result = [];
-                    var fields = [];
+                    var fields: string[] = [];
                     // Iterate over all columns and store them in the result object
                     var e = viewFields.getEnumerator();
 
@@ -137,12 +146,12 @@ module.service('SPData', function($http, $q, $interval): void {
                     // root nodes to make it parsable XML
                     var xml;
                     var parser = new DOMParser();
-                    var columnIndex = null;
+                    var columnIndex: number = null;
 
                     if (view.get_viewQuery() !== "") {
                         xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
                         var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
-                        var groupBy = [];
+                        var groupBy: string[];
                         for (var i:number = 0; i < groupByLength; i++) {
                             groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
                         }
@@ -213,125 +222,170 @@ module.service('SPData', function($http, $q, $interval): void {
             );
         });
     };
-
+    
     this.getData = function(chart): any {
-        return $q(function(success, error): any {
-            var result = [[]];
+	
+	// Define context and determine list and view
+	var context = new SP.ClientContext.get_current();
+	var list = context.get_web().get_lists().getByTitle(chart.listTitle);
+	var view = list.get_views().getByTitle(chart.viewTitle);
+	//var fields = list.get_fields();
+	// Get all columns selected in View editor
+	var viewFields = view.get_viewFields();
 
-            if (chart.listTitle != null) {
-                // Define context and determine list and view
-                var context = new SP.ClientContext.get_current();
-                var list = context.get_web().get_lists().getByTitle(chart.listTitle);
-                var view = list.get_views().getByTitle(chart.viewTitle);
-                var fields = list.get_fields();
-                // Get all columns selected in View editor
-                var viewFields = view.get_viewFields();
+	context.load(viewFields);
+	context.load(view);
+	context.executeQueryAsync(
+            function(sender, args): void {
+		var result = [];
+		var fields = [];
+		// Iterate over all columns and store them in the result object
+		var e = viewFields.getEnumerator();
 
-                context.load(viewFields);
-                context.load(view);
-                context.executeQueryAsync(
-                    function(sender, args) {
+		while (e.moveNext()) {
+                    fields.push(e.get_current());
+		}
 
-                        // Iterate over all columns and store them in the result object
-                        var e = viewFields.getEnumerator();
+		// NOTE: We need to enclose the aggregations XML with our own
+		// root nodes to make it parsable XML
+		var xml;
+		var parser = new DOMParser();
+		var columnIndex = null;
 
-                        while (e.moveNext()) {
-                            result[0].push(e.get_current());
-                        }
-
-                        // This compiles a CAML Query from the settings specified in the view
-                        var camlQuery = new SP.CamlQuery();
-
-                        camlQuery.set_viewXml(view.get_listViewXml());
-
-                        var listItems = list.getItems(camlQuery);
-                        context.load(listItems);
-                        context.executeQueryAsync(
-                            function(sender, args) {
-                                // Iterate over all items and store them for every column in the result object
-                                var liEnum = listItems.getEnumerator();
-                                while (liEnum.moveNext()) {
-                                    var item = liEnum.get_current();
-                                    var row = [];
-                                    for (var i:number = 0; i < result[0].length; i++) {
-                                        row[i] = item.get_item(result[0][i]);
-                                    }
-                                    result.push(row);
-                                }
-
-                                var xml;
-                                var parser = new DOMParser();
-                                var columnIndex = null;
-
-                                if (view.get_viewQuery() !== "") {
-                                    // NOTE: We need to enclose the aggregations XML with our own
-                                    // root nodes to make it parsable XML
-                                    xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
-                                    var groupedColumn = xml.documentElement.getElementsByTagName("FieldRef")[0].getAttribute("Name");
-                                    columnIndex = result[0].indexOf(groupedColumn);
-                                }
-
-                                //TODO: Support multiple aggregations over different columns
-                                //NOTE: In theory, Group By now only works when also an aggregation is given
-                                if (view.get_aggregations() !== '') {
-                                    xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
-                                    var aggregationMethod = xml.childNodes[0].childNodes[0].getAttribute("Type");
-                                    result = group(result, aggregationMethod, columnIndex);
-                                }
-
-                                // Report success and pass result object
-                                var data = result;
-                                //TODO: Get rid of this piece of crap!
-                                //NOTE: Please cry with me for this fix. There is currently no other way, I promise!
-                                for (var j:number = 0; j < data[0].length; j++) {
-                                    data[0][j] = data[0][j].replace("_x0020_", " ");
-                                }
-
-                                //NOTE: Quick fix to handle single values
-                                if (typeof (data[0]) == 'undefined') {
-                                    data = [[chart.chartOptions.title, data]];
-                                    data.splice(0, 0, ["Key", "Value"]);
-                                }
-
-                                //NOTE: Quick fix to handle single column Views.
-                                if (data[0].length === 1) {
-                                    data[0].splice(0, 0, "Key");
-                                }
-
-                                data = google.visualization.arrayToDataTable(data);
-
-                                chart.wrapper.setDataTable(data);
-
-                                chart.wrapper.draw();
-                                success(result);
-
-                            }, function(sender, args): void {
-                                console.warn("Warning: " + args.get_message());
-                            });
-
-                    },
-                    function(sender, args): void {
-                        console.warn("Warning: " + args.get_message() + "\n" +
-				     "\'" + chart.viewTitle + "\'"
-				    );
-
+		if (view.get_viewQuery() !== "") {
+                    xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
+                    var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
+                    var groupBy = [];
+                    for (var i:number = 0; i < groupByLength; i++) {
+			groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
                     }
-                );
+		}
+
+		if (view.get_aggregations() !== "") {
+                    xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
+
+                    var aggregationsLength = xml.childNodes[0].childNodes.length;
+                    var aggregations = [];
+                    for (var i:number = 0; i < aggregationsLength; i++) {
+			var aggregation = {
+                            field: xml.childNodes[0].childNodes[i].getAttribute("Name"),
+                            type: xml.childNodes[0].childNodes[i].getAttribute("Type")
+			};
+			aggregations.push(aggregation);
+                    }
+
+		}
+
+		// This compiles a CAML Query from the settings specified in the view
+		var camlQuery = new SP.CamlQuery();
+
+		camlQuery.set_viewXml(view.get_listViewXml());
+		
+		var listItems = list.getItems(camlQuery);
+		context.load(listItems);
+		context.executeQueryAsync(
+                    function(sender, args): void {
+			// Iterate over all items and store them for every column in the result object
+			var liEnum = listItems.getEnumerator();
+			while (liEnum.moveNext()) {
+                            var item = liEnum.get_current();
+                            var row = [];
+                            for (var i:number = 0; i < fields.length; i++) {
+				row[i] = item.get_item(fields[i]);
+                            }
+                            result.push(row);
+			}
+
+			//Draw the chart
+			var gData = new google.visualization.DataTable();
+			
+			if(groupByLength > 0)
+			{
+			    gData.addColumn('string', 'xAxis');
+			    var xCats = group2(result, 0);
+
+			    if(chart.wrapper.getType() === 'PieChart')
+			    {
+				gData.addColumn('number', 'yAxis');
+				
+				for(var cat in xCats)
+				{
+				    var aggData = group2(xCats[cat], 0);
+				    var arrData: number[] = [];
+				    for(var i: number = 0; i < aggData[cat].length; i++)
+				    {
+					arrData.push(aggData[cat][i][1]);
+				    }
+				    gData.addRow([cat, window[aggregations[0].type](arrData)]);
+				}	
+				
+			    }
+			    else
+			    {
+				
+				// get the first category
+				for(var cat in xCats) break;
+				var yCats = group2(xCats[cat], groupByLength - 1);
+
+				for(var yCat in yCats)
+				{
+				    gData.addColumn('number', yCat);
+				}
+
+
+				for(var cat in xCats)
+				{
+				    var row: any[] = [cat];
+				    
+				    var group = group2(xCats[cat], 0);
+				    var innerGroup = group2(group[cat], 1);
+				    if(groupByLength > 1)
+				    {
+					for(var innerCat in innerGroup)
+					{
+					    var data: any[] = innerGroup[innerCat];
+					    var arrData: number[] = [];
+					    for(var i = 0; i < data.length; i++)
+					    {
+						arrData.push(data[i][groupByLength]);
+					    }
+					    row.push(window[aggregations[0].type](arrData));			    
+					}
+				    }
+				    console.log(chart.wrapper.getType());
+				    console.log(row.length);
+				    gData.addRow(row);
+				}
+				
+
+				//console.log(xCats);
+			    }
+			}
+			
+			chart.wrapper.setDataTable(gData);
+			chart.wrapper.draw();
+                    });
+
+            },
+
+            function(sender, args): void {
+		console.warn("Warning: " + args.get_message() + "\n" +
+			     "\'" + FUNNEL_VIEW_TITLE + "\'"
+			    );
+
             }
-        });
-    };
+	);
+	
+    }
 });
 
 module.controller('funnelController', ['$scope', function($scope): void {
     $scope.$on('init.ready', function(): void {
-	//TODO: Temporary variable declarations, rewrite to function with parameters
-	var listTitle:string = "Dossiers";
-	var viewTitle:string = "Funnel";
-	
+		
 	// Define context and determine list and view
 	var context = new SP.ClientContext.get_current();
-	var list = context.get_web().get_lists().getByTitle(listTitle);
-	var view = list.get_views().getByTitle(viewTitle);
+	var list = context.get_web().get_lists().getByTitle(FUNNEL_LIST_TITLE);
+	var view = list.get_views().getByTitle(FUNNEL_VIEW_TITLE);
 	var fields = list.get_fields();
 	// Get all columns selected in View editor
 	var viewFields = view.get_viewFields();
@@ -425,7 +479,7 @@ module.controller('funnelController', ['$scope', function($scope): void {
 
             function(sender, args): void {
 		console.warn("Warning: " + args.get_message() + "\n" +
-			     "\'" + viewTitle + "\'"
+			     "\'" + FUNNEL_VIEW_TITLE + "\'"
 			    );
 
             }

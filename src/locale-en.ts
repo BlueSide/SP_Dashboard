@@ -1,5 +1,4 @@
 var translationStrings = {
-    
     "Rapportages": "Reports",
     "Agri & Food": "Agri & Food",
     "Health": "Health",
@@ -29,5 +28,6 @@ var translationStrings = {
     "Bedrag per sector per jaar": "Amount per sector per year",
     "Dashboard": "Dashboard",
     "Live update:": "Live update:",
-    "Copyright © 2016 Blue Side": "Copyright © 2016 Blue Side"
+    "Copyright © 2016 Blue Side": "Copyright © 2016 Blue Side",
+    "Gemiddelde TRL per fase": "Average TRL per phase"
 };
