@@ -23,11 +23,11 @@ var translationStrings = {
     "Uitvoering": "2nd level support",
     "Aantal aanvragen per sector": "Number of applications per sector",
     "Bedrag per Sector": "Total amount per sector",
-    "Gemiddelde bedrag per Sector": "Average amount per sector",
-    "Grootst aangevraagde bedrag per sector": "Highest amount sought per sector",
-    "Bedrag per sector per jaar": "Amount per sector per year",
+    "Toegewezen FTE": "Assigned FTE",
+    "Aangevraagd bedrag": "Amount sought",
     "Dashboard": "Dashboard",
     "Live update:": "Live update:",
     "Copyright © 2016 Blue Side": "Copyright © 2016 Blue Side",
-    "Gemiddelde TRL per fase": "Average TRL per phase"
+    "Gemiddelde TRL per fase": "Average TRL per phase",
+    "Percentage aangevraagd per sector": "Percentage sought per sector"
 };

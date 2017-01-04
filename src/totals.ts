@@ -110,7 +110,23 @@ function SUM(data: number[])
 
 function COUNT(data: number[])
 {
-    return data.length;
+    var result: any[] = [];
+    for(var i: number = 0; i < data.length; i++)
+    {
+	//NOTE: Don't include blank values
+	if(typeof(data[i][0]) !== 'undefined')
+	{
+	    if(data[i][0] !== null)
+	    {
+		result.push(data[i]);
+	    }
+	}
+	else
+	{
+	    result.push(data[i]);
+	}
+    }
+    return result.length;
 }
 
 function COUNT2(data)

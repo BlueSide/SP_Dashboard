@@ -65,7 +65,7 @@
 		    <div class="panel panel-default">
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></div>
 			<div class="panel-body">
-			    <h2 class="bs-infoheader">153</h2>
+			    <h2 class="bs-infoheader"><bs-value list="Dossiers" view="Succesvol ondersteund"></h2>
 			    <div class="panel-footer" bs-translate>Succesvol ondersteund</div>
 			</div>
 		    </div>
@@ -83,7 +83,7 @@
 		    <div class="panel panel-default">
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
 			<div class="panel-body">
-			    <h2 class="bs-infoheader">10,5</h2>
+			    <h2 class="bs-infoheader"><bs-value list="Dossiers" view="Total FTE"></h2>
 			    <div class="panel-footer" bs-translate>Full Time Employment</div>
 			</div>
 		    </div>
@@ -101,7 +101,7 @@
 		    <div class="panel panel-default">
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span></div>
 			<div class="panel-body">
-			    <h2 class="bs-infoheader">23</h2>
+			    <h2 class="bs-infoheader"><bs-value list="Dossiers" view="Referrals"></h2>
 			    <div class="panel-footer" bs-translate>Doorverwijzingen</div>
 			</div>
 		    </div>
@@ -110,7 +110,7 @@
 		    <div class="panel panel-default">
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></div>
 			<div class="panel-body">
-			    <h2 class="bs-infoheader">175</h2>
+			    <h2 class="bs-infoheader"><bs-value list="Dossiers" view="Koffie"></bs-value></h2>
 			    <div class="panel-footer" bs-translate>Liters koffie</div>
 			</div>
 		    </div>
@@ -203,16 +203,16 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Gemiddelde bedrag per Sector</div>
-				    <bs-chart type="PieChart" title="Count" list="Dossiers" view="Gemiddelde bedrag per Sector" options="templates/piechart3.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <div class="panel-heading" bs-translate>Toegewezen FTE</div>
+				    <bs-chart type="ColumnChart" list="Dossiers" view="Assigned FTE" options="templates/column_chart_FTE.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Grootst aangevraagde bedrag per sector</div>
-				    <bs-chart type="PieChart" title="Count" list="Dossiers" view="Grootst aangevraagde bedrag per sector" options="templates/piechart4.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <div class="panel-heading" bs-translate>Percentage aangevraagd per sector</div>
+				    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="templates/stepped_area_chart-small.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -223,9 +223,8 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Bedrag per sector per jaar</div>
-			    <!-- <bs-chart type="ColumnChart" list="Dossiers" view="Bedrag per sector per jaar" options="templates/columnchart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart> -->
-			    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="templates/linechart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+			    <div class="panel-heading" bs-translate>Aangevraagd bedrag</div>
+			    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="templates/stepped_area_chart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
 		</div>
@@ -233,7 +232,7 @@
 		    <div class="panel panel-default">
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
-			    <bs-chart type="ColumnChart" list="Dossiers" view="Average TRL per phase per sector" options="templates/columnchart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+			    <bs-chart type="ColumnChart" list="Dossiers" view="Average TRL per phase" options="templates/column_chart_TRL.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
 		</div>

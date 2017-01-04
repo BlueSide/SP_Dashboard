@@ -10,3 +10,6 @@ _*
 
 # ignore TypeScript generated files
 node_modules
+
+# ignore build scripts
+build.bat

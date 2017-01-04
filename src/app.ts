@@ -26,6 +26,9 @@ const RELOAD_TIMEOUT: number = 1000;
 const FUNNEL_LIST_TITLE: string = "Dossiers";
 const FUNNEL_VIEW_TITLE: string = "Funnel";
 
+//TODO: Fetch the blank string option from either template of HTML attribute
+const SP_BLANK_STRING: string = "Unassigned";
+
 var liveUpdate: boolean = false;		// Value stored in cookie, this sets the default value for first use
 var liveUpdatePause: boolean = false;
 
@@ -120,6 +123,7 @@ module.service('SPData', function($http, $q, $interval): void {
         liveUpdatePause = true;
     };
 
+    // the success value always contains a single value
     this.getValue = function(listTitle: string, viewTitle: string): any {
         return $q(function(success, error): any {
             // Define context and determine list and view
@@ -151,13 +155,21 @@ module.service('SPData', function($http, $q, $interval): void {
                     if (view.get_viewQuery() !== "") {
                         xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
                         var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
-                        var groupBy: string[];
+                        var groupBy: string[] = [];
                         for (var i:number = 0; i < groupByLength; i++) {
-                            groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
-                        }
+			    if(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"))
+			    {
+				groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
+                            }
+			}
                     }
 
-                    if (view.get_aggregations() !== "") {
+                    if (view.get_aggregations() === "")
+		    {
+			console.warn(viewTitle + ": An Aggregation Type is required when fetching a single value");
+		    }	
+		    else
+		    {
                         xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
 
                         var aggregationsLength = xml.childNodes[0].childNodes.length;
@@ -170,46 +182,49 @@ module.service('SPData', function($http, $q, $interval): void {
                             aggregations.push(aggregation);
                         }
 
-                    }
 
-                    // This compiles a CAML Query from the settings specified in the view
-                    var camlQuery = new SP.CamlQuery();
+			// This compiles a CAML Query from the settings specified in the view
+			var camlQuery = new SP.CamlQuery();
 
-                    camlQuery.set_viewXml(view.get_listViewXml());
+			camlQuery.set_viewXml(view.get_listViewXml());
 
-                    var listItems = list.getItems(camlQuery);
-                    context.load(listItems);
-                    context.executeQueryAsync(
-                        function(sender, args) {
-                            // Iterate over all items and store them for every column in the result object
-                            var liEnum = listItems.getEnumerator();
-                            while (liEnum.moveNext()) {
-                                var item = liEnum.get_current();
-                                var row = [];
-                                for (var i:number = 0; i < fields.length; i++) {
-                                    row[i] = item.get_item(fields[i]);
-                                }
-                                result.push(row);
-                            }
+			var listItems = list.getItems(camlQuery);
+			context.load(listItems);
+			context.executeQueryAsync(
+                            function(sender, args) {
 
-                            if (groupByLength > 0) {
-                                var columnIndex = fields.indexOf(groupBy[0]);
-                                var group = group2(result, columnIndex);
-
-                                //TODO: check for second groupBy
-                                if (groupByLength > 1) {
-                                    for (var property in group) {
-                                        if (group.hasOwnProperty(property)) {
-                                            group[property] = group2(group[property], fields.indexOf(groupBy[1]));
-                                        }
+				// Iterate over all items and store them for every column in the result object
+				var liEnum = listItems.getEnumerator();
+				while (liEnum.moveNext())
+				{
+                                    var item = liEnum.get_current();
+                                    var row: any[] = [];
+                                    for (var i:number = 0; i < fields.length; i++) {
+					row[i] = item.get_item(fields[i]);
                                     }
-                                }
-                            }
+				    result.push(row);
+				}
 
-                            result = window[aggregations[0].type](result);
+				if (groupByLength > 0)
+				{
+                                    var columnIndex = fields.indexOf(groupBy[0]);
+                                    var group = group2(result, columnIndex);
 
-                            success(result);
-                        });
+                                    //TODO: check for second groupBy
+                                    if (groupByLength > 1) {
+					for (var property in group) {
+                                            if (group.hasOwnProperty(property)) {
+						group[property] = group2(group[property], fields.indexOf(groupBy[1]));
+                                            }
+					}
+                                    }
+				}
+
+				console.log(aggregations);
+				result = window[aggregations[0].type](result);
+				success(result);
+                            });
+                    }
 
                 },
 
@@ -222,14 +237,15 @@ module.service('SPData', function($http, $q, $interval): void {
             );
         });
     };
-    
+
+    // Draws the passed chart according to the List data and View settings
     this.getData = function(chart): any {
-	
 	// Define context and determine list and view
 	var context = new SP.ClientContext.get_current();
 	var list = context.get_web().get_lists().getByTitle(chart.listTitle);
 	var view = list.get_views().getByTitle(chart.viewTitle);
 	//var fields = list.get_fields();
+
 	// Get all columns selected in View editor
 	var viewFields = view.get_viewFields();
 
@@ -292,6 +308,10 @@ module.service('SPData', function($http, $q, $interval): void {
                             var row = [];
                             for (var i:number = 0; i < fields.length; i++) {
 				row[i] = item.get_item(fields[i]);
+				if(row[i] === null)
+				{
+				    row[i] = SP_BLANK_STRING;
+				}
                             }
                             result.push(row);
 			}
@@ -303,7 +323,6 @@ module.service('SPData', function($http, $q, $interval): void {
 			{
 			    gData.addColumn('string', 'xAxis');
 			    var xCats = group2(result, 0);
-
 			    if(chart.wrapper.getType() === 'PieChart')
 			    {
 				gData.addColumn('number', 'yAxis');
@@ -326,42 +345,34 @@ module.service('SPData', function($http, $q, $interval): void {
 				// get the first category
 				for(var cat in xCats) break;
 				var yCats = group2(xCats[cat], groupByLength - 1);
-
+				
 				for(var yCat in yCats)
 				{
 				    gData.addColumn('number', yCat);
 				}
-
 
 				for(var cat in xCats)
 				{
 				    var row: any[] = [cat];
 				    
 				    var group = group2(xCats[cat], 0);
-				    var innerGroup = group2(group[cat], 1);
 				    if(groupByLength > 1)
 				    {
+					var innerGroup = group2(group[cat], 1);
 					for(var innerCat in innerGroup)
 					{
 					    var data: any[] = innerGroup[innerCat];
-					    var arrData: number[] = [];
-					    for(var i = 0; i < data.length; i++)
-					    {
-						arrData.push(data[i][groupByLength]);
-					    }
-					    row.push(window[aggregations[0].type](arrData));			    
+					    row.push(window[aggregations[0].type](getArrayFromSPData(data, groupByLength)));
 					}
 				    }
-				    console.log(chart.wrapper.getType());
-				    console.log(row.length);
+				    else
+				    {
+					row.push(window[aggregations[0].type](getArrayFromSPData(group[cat], groupByLength)));
+				    }
 				    gData.addRow(row);
 				}
-				
-
-				//console.log(xCats);
 			    }
 			}
-			
 			chart.wrapper.setDataTable(gData);
 			chart.wrapper.draw();
                     });
@@ -370,7 +381,7 @@ module.service('SPData', function($http, $q, $interval): void {
 
             function(sender, args): void {
 		console.warn("Warning: " + args.get_message() + "\n" +
-			     "\'" + FUNNEL_VIEW_TITLE + "\'"
+			     "\'" + chart.viewTitle + "\'"
 			    );
 
             }
@@ -381,7 +392,7 @@ module.service('SPData', function($http, $q, $interval): void {
 
 module.controller('funnelController', ['$scope', function($scope): void {
     $scope.$on('init.ready', function(): void {
-		
+	
 	// Define context and determine list and view
 	var context = new SP.ClientContext.get_current();
 	var list = context.get_web().get_lists().getByTitle(FUNNEL_LIST_TITLE);
@@ -463,7 +474,6 @@ module.controller('funnelController', ['$scope', function($scope): void {
 					group[property] = group2(group[property], fields.indexOf(groupBy[1]));
 					for (var innerProperty in group[property]) {
 					    if (group[property].hasOwnProperty(innerProperty)) {
-						//console.log(innerProperty);
 						group[property][innerProperty] = COUNT(group[property][innerProperty]);
 					    }
 					}
@@ -487,3 +497,14 @@ module.controller('funnelController', ['$scope', function($scope): void {
 	
     });
 }]);
+
+//takes the element in `groupByLength` of each array in `data`
+function getArrayFromSPData(data:any[], groupByLength: number): any[]
+{
+    var arrData: number[] = [];
+    for(var i = 0; i < data.length; i++)
+    {
+	arrData.push(data[i][groupByLength]);
+    }
+    return arrData;
+}
