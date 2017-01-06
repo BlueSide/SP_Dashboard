@@ -30,6 +30,8 @@
 	<script src="src/bsToolbox.js"></script>
 	<script src="src/directives.js"></script>
 	<script src="src/locale-en.js"></script>
+	<script src="templates/templates.js"></script>
+	
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	
     </head>
@@ -186,7 +188,7 @@
 			    <div class="panel panel-default">
 				<div class="panel-body">
 				    <div class="panel-heading" bs-translate>Aantal aanvragen per sector</div>
-				    <bs-chart type="PieChart" list="Dossiers" view="Aantal aanvragen per sector" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx" options="templates/piechart1.js"></bs-chart>
+				    <bs-chart type="PieChart" list="Dossiers" view="Aantal aanvragen per sector" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx" options="pie_chart" debugMode></bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -194,7 +196,7 @@
 			    <div class="panel panel-default">
 				<div class="panel-body">
 				    <div class="panel-heading" bs-translate>Bedrag per Sector</div>
-				    <bs-chart type="PieChart" title="Count" list="Dossiers" view="Bedrag per Sector" options="templates/piechart2.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <bs-chart type="PieChart" title="Count" list="Dossiers" view="Bedrag per Sector" options="pie_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -204,7 +206,7 @@
 			    <div class="panel panel-default">
 				<div class="panel-body">
 				    <div class="panel-heading" bs-translate>Toegewezen FTE</div>
-				    <bs-chart type="ColumnChart" list="Dossiers" view="Assigned FTE" options="templates/column_chart_FTE.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <bs-chart type="ColumnChart" list="Dossiers" view="Assigned FTE" options="column_chart_FTE" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -212,7 +214,7 @@
 			    <div class="panel panel-default">
 				<div class="panel-body">
 				    <div class="panel-heading" bs-translate>Percentage aangevraagd per sector</div>
-				    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="templates/stepped_area_chart-small.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="stepped_area_chart_small" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -224,7 +226,7 @@
 		    <div class="panel panel-default">
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Aangevraagd bedrag</div>
-			    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="templates/stepped_area_chart.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+			    <bs-chart type="SteppedAreaChart" list="Dossiers" view="Average TRL per phase" options="stepped_area_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
 		</div>
@@ -232,7 +234,7 @@
 		    <div class="panel panel-default">
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
-			    <bs-chart type="ColumnChart" list="Dossiers" view="Average TRL per phase" options="templates/column_chart_TRL.js" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+			    <bs-chart type="ColumnChart" list="Dossiers" view="Average TRL per phase" options="column_chart_TRL" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
 		</div>

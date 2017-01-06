@@ -178,7 +178,6 @@ module.service('SPData', function($http, $q, $interval): void {
 			}
 			else
 			{
-			    console.log(fields);
 			    aggregation = {
 				field: fields[0],
 				type: aggregationType
@@ -232,7 +231,6 @@ module.service('SPData', function($http, $q, $interval): void {
                                 }
 			    }
 
-			    console.log(aggregation);
 			    result = window[aggregation.type](result);
 			    success(result);
                         });

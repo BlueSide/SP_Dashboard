@@ -75,40 +75,13 @@ module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, 
 		    wrapper: null,
 		    chartOptions: null
 		};
-		
-		//NOTE: Options
-		chart.chartOptions = {
-		    title: attributes.title
-		};
 
-		$http({
-		    url: attributes.options,
-		    method: 'GET',
-		    transformResponse: [function (data) {
-			return data;
-		    }]
-		}).success(function(data) {
-		    
-		    //STUDY: Check if it's possible to run malicious code this way
-		    //STUDY: Check $parse
-		    var templateOptions: any;
-		    eval("templateOptions="+data);
-		    
-		    // Merges the two objects together, overrides exisiting properties
-		    for (var attrname in templateOptions)
-		    {
-			chart.chartOptions[attrname] = templateOptions[attrname];
-		    }
+		var templateOptions: any = window[attributes.options];
+		templateOptions.title = attributes.title;
 
-		    if(attributes.debugMode)
-		    {
-			console.debug(chart.toString());
-		    }
-		});
-		
 		chart.wrapper = new google.visualization.ChartWrapper({
 		    chartType: attributes.type,
-		    options: chart.chartOptions,
+		    options: templateOptions,
 		    containerId: element.children()[0]
 		});
 		
