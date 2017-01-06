@@ -4,10 +4,5 @@
     
     vAxis: {
 	//ticks: [1,2,3,4,5,6,7,8,9]
-    },
-    animation: {
-	startup: true,
-	duration: 1000,
-	easing: 'out'
     }
 }
