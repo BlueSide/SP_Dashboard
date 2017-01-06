@@ -21,7 +21,7 @@ module.directive( "bsValue", ['SPData', function(SPData) {
     var _spData = SPData;
     return {
 	restrict: "E",
-
+	
 	scope: {
 	    // This is to isolate the scope
 	},
@@ -29,15 +29,16 @@ module.directive( "bsValue", ['SPData', function(SPData) {
 	link: function($scope, element, attributes, SPData) {
 	    // Wait for SharePoint context to finish loading
 	    $scope.$on('init.ready', function() {
-		_spData.getValue(attributes.list, attributes.view).then(function (result) {
+						
+		_spData.getValue(attributes.list, attributes.view, attributes.aggregation).then(function (result) {
 		    switch(attributes.format)
 		    {
 		    case "currency":
 			$scope.value = bsFormatSPCurrency(result, false);
 			break;
-			default:
-			    $scope.value = result;
-			    break;
+		    default:
+			$scope.value = result;
+			break;
 		    }
 		});
 	    });
@@ -57,7 +58,7 @@ module.directive( "bsFunnelValue", [function() {
 	}
     };
 }]);
-				  
+
 module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, $rootScope, $http) {
     var _spData = SPData;
     return {
@@ -137,9 +138,9 @@ module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, 
 		}
 
 		/*
-		 NOTE: 
-		 We stop updating data to prevent chart tooltips to disappear
-		 on chart draw
+		  NOTE: 
+		  We stop updating data to prevent chart tooltips to disappear
+		  on chart draw
 		 */			
 		function onChartMouseOver() {
 		    _spData.stopLiveUpdate();

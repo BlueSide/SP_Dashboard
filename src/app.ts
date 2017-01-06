@@ -13,7 +13,10 @@ interface SPField {
     dataType: string;
 }
 
-
+interface Aggregation {
+    field: string;
+    type: string;
+}
 /*
 interface chart {
     wrapper;
@@ -122,10 +125,11 @@ module.service('SPData', function($http, $q, $interval): void {
     this.stopLiveUpdate = function(): void {
         liveUpdatePause = true;
     };
-
+    
     // the success value always contains a single value
-    this.getValue = function(listTitle: string, viewTitle: string): any {
+    this.getValue = function(listTitle: string, viewTitle: string, aggregationType: string): any {
         return $q(function(success, error): any {
+	    
             // Define context and determine list and view
             var context = new SP.ClientContext.get_current();
             var list = context.get_web().get_lists().getByTitle(listTitle);
@@ -164,67 +168,74 @@ module.service('SPData', function($http, $q, $interval): void {
 			}
                     }
 
-                    if (view.get_aggregations() === "")
+		    var aggregation: Aggregation;
+
+		    if (view.get_aggregations() === "")
 		    {
-			console.warn(viewTitle + ": An Aggregation Type is required when fetching a single value");
-		    }	
+			if(typeof(aggregationType) === 'undefined')
+			{
+			    console.warn(viewTitle + ": An Aggregation Type is required when fetching a single value");
+			}
+			else
+			{
+			    console.log(fields);
+			    aggregation = {
+				field: fields[0],
+				type: aggregationType
+			    };
+			}
+		    }
 		    else
 		    {
-                        xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
+			xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
 
-                        var aggregationsLength = xml.childNodes[0].childNodes.length;
-                        var aggregations = [];
-                        for (var i:number = 0; i < aggregationsLength; i++) {
-                            var aggregation = {
-                                field: xml.childNodes[0].childNodes[i].getAttribute("Name"),
-                                type: xml.childNodes[0].childNodes[i].getAttribute("Type")
-                            };
-                            aggregations.push(aggregation);
-                        }
+			aggregation = {
+                            field: xml.childNodes[0].childNodes[0].getAttribute("Name"),
+                            type: xml.childNodes[0].childNodes[0].getAttribute("Type")
+			};
+		    }
 
+		    // This compiles a CAML Query from the settings specified in the view
+		    var camlQuery = new SP.CamlQuery();
 
-			// This compiles a CAML Query from the settings specified in the view
-			var camlQuery = new SP.CamlQuery();
+		    camlQuery.set_viewXml(view.get_listViewXml());
 
-			camlQuery.set_viewXml(view.get_listViewXml());
+		    var listItems = list.getItems(camlQuery);
+		    context.load(listItems);
+		    context.executeQueryAsync(
+                        function(sender, args) {
 
-			var listItems = list.getItems(camlQuery);
-			context.load(listItems);
-			context.executeQueryAsync(
-                            function(sender, args) {
+			    // Iterate over all items and store them for every column in the result object
+			    var liEnum = listItems.getEnumerator();
+			    while (liEnum.moveNext())
+			    {
+                                var item = liEnum.get_current();
+                                var row: any[] = [];
+                                for (var i:number = 0; i < fields.length; i++) {
+				    row[i] = item.get_item(fields[i]);
+                                }
+				result.push(row);
+			    }
 
-				// Iterate over all items and store them for every column in the result object
-				var liEnum = listItems.getEnumerator();
-				while (liEnum.moveNext())
-				{
-                                    var item = liEnum.get_current();
-                                    var row: any[] = [];
-                                    for (var i:number = 0; i < fields.length; i++) {
-					row[i] = item.get_item(fields[i]);
-                                    }
-				    result.push(row);
-				}
+			    if (groupByLength > 0)
+			    {
+                                var columnIndex = fields.indexOf(groupBy[0]);
+                                var group = group2(result, columnIndex);
 
-				if (groupByLength > 0)
-				{
-                                    var columnIndex = fields.indexOf(groupBy[0]);
-                                    var group = group2(result, columnIndex);
+                                //TODO: check for second groupBy
+                                if (groupByLength > 1) {
+				    for (var property in group) {
+                                        if (group.hasOwnProperty(property)) {
+					    group[property] = group2(group[property], fields.indexOf(groupBy[1]));
+                                        }
+				    }
+                                }
+			    }
 
-                                    //TODO: check for second groupBy
-                                    if (groupByLength > 1) {
-					for (var property in group) {
-                                            if (group.hasOwnProperty(property)) {
-						group[property] = group2(group[property], fields.indexOf(groupBy[1]));
-                                            }
-					}
-                                    }
-				}
-
-				console.log(aggregations);
-				result = window[aggregations[0].type](result);
-				success(result);
-                            });
-                    }
+			    console.log(aggregation);
+			    result = window[aggregation.type](result);
+			    success(result);
+                        });
 
                 },
 
