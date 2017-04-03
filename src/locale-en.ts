@@ -1,10 +1,9 @@
 var translationStrings = {
     "Rapportages": "Reports",
-    "Agri & Food": "Agri & Food",
-    "Health": "Health",
-    "Dossiers": "Files",
-    "Lijsten": "Lists",
-    "Equity": "Equity",
+    "Metal industries": "Metal industries",
+    "Non-metallic minerals industries": "Non-metallic minerals industries",
+    "Forest-based industries": "Forest-based industries",
+    "Minerals and non-energy extractive industries": "Minerals and non-energy extractive industries",
     "Maps": "Maps",
     "Live update": "Live update",
     "Succesvol ondersteund": "Succesfully supported",
@@ -27,7 +26,7 @@ var translationStrings = {
     "Aangevraagd bedrag": "Amount sought",
     "Dashboard": "Dashboard",
     "Live update:": "Live update:",
-    "Copyright © 2016 Blue Side": "Copyright © 2016 Blue Side",
+    "Copyright © 2017 Blue Side": "Copyright © 2017 Blue Side",
     "Gemiddelde TRL per fase": "Average TRL per phase",
     "Percentage aangevraagd per sector": "Percentage sought per sector"
 };

@@ -49,12 +49,12 @@ module.directive( "bsValue", ['SPData', function(SPData) {
     };
 }]);
 
-module.directive( "bsFunnelValue", [function() {
+module.directive( "bsFunnelValue", [function($scope) {
     return {
 	restrict: "E",
 	scope: false,
 	template: function (element, attributes) {
-	    return '<a class="bs-funnel-value" href="'+attributes.url+'">{{data["'+attributes.group+'"]["'+attributes.innergroup+'"]}}</a>';
+            return '<a class="bs-funnel-value" href="'+attributes.url+'">{{data["'+attributes.group+'"]["'+attributes.innergroup+'"]}}</a>';
 	}
     };
 }]);

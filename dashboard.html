@@ -40,21 +40,20 @@
 	    <nav class="navbar navbar-default">
 		<div class="container-fluid">
 		    <ul class="nav navbar-nav">
-			<li class="active"><a href="#" bs-translate>Dashboard</a></li>
+			<li class="active"><a href="#">Dashboard</a></li>
 			<li class="dropdown">
-			    <a class="dropdown-toggle" data-toggle="dropdown" href="#" bs-translate>Lijsten<span class="caret"></span></a>
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Lijsten<span class="caret"></span></a>
 			    <ul class="dropdown-menu">
-				<li><a href="https://bluesidenl.sharepoint.com/Lists/Cases/AllItems.aspx" bs-translate>Dossiers</a></li>
-				<li><a href="https://bluesidenl.sharepoint.com/Lists/Equity/AllItems.aspx" bs-translate>Equity</a></li>
+				<li><a href="../../Lists/Projects/AllItems.aspx">Projecten</a></li>
 			    </ul>
 			</li>
-			<li><a href="#" bs-translate>Rapportages</a></li>
-			<li><a href="#" bs-translate>Maps</a></li> 
+			<li><a href="#">Rapportages</a></li>
+			<li><a href="#">Maps</a></li> 
 		    </ul>
 		    <ul class="nav navbar-nav navbar-right">
 			<!-- Slide THREE -->
 			<div class="slideThree" name="myForm" ng-controller="liveUpdateController">
-			    <div class="bs-check-label" bs-translate>Live update:</div>
+			    <div class="bs-check-label">Live update:</div>
 			    <input type="checkbox" value="None" id="slideThree" name="check" ng-model="cbLiveUpdate" ng-click="onLiveUpdateClick()"/>
 			    <label for="slideThree"></label>
 			</div>
@@ -68,7 +67,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader"><bs-value list="Cases" view="SuccesfullySupported"></h2>
-			    <div class="panel-footer" bs-translate>Succesvol ondersteund</div>
+			    <div class="panel-footer">Succesvol ondersteund</div>
 			</div>
 		    </div>
 		</div>
@@ -77,7 +76,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader"><bs-value list="Cases" view="TotalHonoredFinances" format="currency"></bs-value></h2>
-			    <div class="panel-footer" bs-translate>Aan externe financiering</div>
+			    <div class="panel-footer">Aan externe financiering</div>
 			</div>
 		    </div>
 		</div>
@@ -86,7 +85,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader"><bs-value list="Cases" view="TotalFTE"></h2>
-			    <div class="panel-footer" bs-translate>Full Time Employment</div>
+			    <div class="panel-footer">Full Time Employment</div>
 			</div>
 		    </div>
 		</div>
@@ -95,7 +94,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tree-deciduous" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader">212 ton</h2>
-			    <div class="panel-footer" bs-translate>CO2 besparing</div>
+			    <div class="panel-footer">CO2 besparing</div>
 			</div>
 		    </div>
 		</div>
@@ -104,7 +103,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader"><bs-value list="Cases" view="Referrals"></h2>
-			    <div class="panel-footer" bs-translate>Doorverwijzingen</div>
+			    <div class="panel-footer">Doorverwijzingen</div>
 			</div>
 		    </div>
 		</div>
@@ -113,7 +112,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader"><bs-value list="Cases" view="TotalCoffee" aggregation="SUM"></bs-value></h2>
-			    <div class="panel-footer" bs-translate>Liters koffie</div>
+			    <div class="panel-footer">Liters koffie</div>
 			</div>
 		    </div>
 		</div>
@@ -123,27 +122,27 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default" style="display:table;">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Funnel chart</div>
+			    <div class="panel-heading">Funnel chart</div>
 			    
 			    <!--- Begin funnelchart --->
 			    <div class="row" ng-controller="funnelController">
 				<div class="col-md-2-bs-funnel">
 				    <table class="funnelcolumn column2">
-					<tr class="column2row"><td bs-translate>Agri & Food</td></tr>
-					<tr class="column2row"><td bs-translate>Dienstverlening</td></tr>
-					<tr class="column2row"><td bs-translate>Health</td></tr>
-					<tr class="column2row"><td bs-translate>Kunststof</td></tr>
-					<tr class="column2row"><td bs-translate>Tech</td></tr>
+					<tr class="column2row"><td>Metal industries</td></tr>
+					<tr class="column2row"><td>Non-metallic minerals industries</td></tr>
+					<tr class="column2row"><td>Forest-based industries</td></tr>
+					<tr class="column2row"><td>Minerals and non-energy extractive industries</td></tr>
+					<tr class="column2row"><td></td></tr>
 				    </table>
 				</div>
 				<div class="col-md-3-bs-funnel">
 				    <table class="funnelcolumn column3">
-					<tr class="column3row"><td><bs-funnel-value group="Agri & Food" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
+					<tr class="column3row"><td><bs-funnel-value group="Agri & Food" innerGroup="1. Lead" url="../../Lists/Cases/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value group="Business Services" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value group="Health" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value group="Industrial plastics" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value group="Tech" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column3lastrow"><td bs-translate>Leads</td></tr>
+					<tr class="column3lastrow"><td>1. Scouting</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-4-bs-funnel">
@@ -153,7 +152,7 @@
 					<tr class="column4row"><td><bs-funnel-value group="Health" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column4row"><td><bs-funnel-value group="Industrial plastics" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column4row"><td><bs-funnel-value group="Tech" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column4lastrow"><td bs-translate>Intake</td></tr>
+					<tr class="column4lastrow"><td>2. Screening</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-5-bs-funnel">
@@ -163,7 +162,7 @@
 					<tr class="column5row"><td><bs-funnel-value group="Health" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column5row"><td><bs-funnel-value group="Industrial plastics" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column5row"><td><bs-funnel-value group="Tech" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column5lastrow"><td bs-translate>Begeleiding</td></tr>
+					<tr class="column5lastrow"><td>3. Intake</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-6-bs-funnel">
@@ -173,7 +172,17 @@
 					<tr class="column6row"><td><bs-funnel-value group="Health" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column6row"><td><bs-funnel-value group="Industrial plastics" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
 					<tr class="column6row"><td><bs-funnel-value group="Tech" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column6lastrow"><td bs-translate>Uitvoering</td></tr>
+					<tr class="column6lastrow"><td>4. Support</td></tr>
+				    </table>
+				</div>
+				<div class="col-md-7-bs-funnel">
+				    <table class="funnelcolumn column7">
+					<tr class="column7row"><td><bs-funnel-value group="Agri & Food" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value group="Business Services" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value group="Health" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value group="Industrial plastics" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value group="Tech" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
+					<tr class="column7lastrow"><td>5. Evaluation</td></tr>
 				    </table>
 				</div>
 			    </div>
@@ -187,7 +196,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Aantal aanvragen per sector</div>
+				    <div class="panel-heading">Aantal aanvragen per sector</div>
 				    <bs-chart type="PieChart" list="Cases" view="ApplicationsPerSector" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx" options="pie_chart" debugMode></bs-chart>
 				</div>
 			    </div>
@@ -195,8 +204,8 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Bedrag per Sector</div>
-				    <bs-chart type="PieChart" title="Count" list="Cases" view="RequestedFinancesPerSector" options="pie_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <div class="panel-heading">Bedrag per Sector</div>
+				    <bs-chart type="PieChart" title="Count" list="Cases" view="Gemiddelde bedrag per Sector" options="pie_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -205,7 +214,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Toegewezen FTE</div>
+				    <div class="panel-heading">Toegewezen FTE</div>
 				    <bs-chart type="ColumnChart" list="Cases" view="AssignedFTE" options="column_chart_FTE" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
@@ -213,7 +222,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Percentage aangevraagd per sector</div>
+				    <div class="panel-heading">Percentage aangevraagd per sector</div>
 				    <bs-chart type="SteppedAreaChart" list="Cases" view="AvgTRLPerPhase" options="stepped_area_chart_small" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 				</div>
 			    </div>
@@ -225,7 +234,7 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Aangevraagd bedrag</div>
+			    <div class="panel-heading">Aangevraagd bedrag</div>
 			    <bs-chart type="SteppedAreaChart" list="Cases" view="AvgTRLPerPhase" options="stepped_area_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
@@ -233,7 +242,7 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
+			    <div class="panel-heading">Gemiddelde TRL per fase</div>
 			    <bs-chart type="ColumnChart" list="Cases" view="AvgTRLPerPhase" options="column_chart_TRL" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
 			</div>
 		    </div>
@@ -241,7 +250,7 @@
 
 	</div>
 	</div>
-	<div class="centered" bs-translate>Copyright © 2016 Blue Side</div>
+	<div class="centered">Copyright © 2017 Blue Side</div>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->

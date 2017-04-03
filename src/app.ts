@@ -26,7 +26,7 @@ interface chart {
 // Time in milliseconds between refreshing data
 const RELOAD_TIMEOUT: number = 1000;
 
-const FUNNEL_LIST_TITLE: string = "Cases";
+const FUNNEL_LIST_TITLE: string = "Projects";
 const FUNNEL_VIEW_TITLE: string = "Funnel";
 
 //TODO: Fetch the blank string option from either template of HTML attribute
@@ -37,8 +37,6 @@ var liveUpdatePause: boolean = false;
 
 var module = angular.module('bsDashboard', []);
 var spContext;
-
-const SITE_ROOT: string = 'https://portal.addventure.nl/blueside/';
 
 module.controller('initController', ['$scope', '$rootScope', '$timeout', 'SPData', function($rootScope, $scope, $timeout, SPData) {
     // Manual counter to keep reference of externally loaded scripts
@@ -54,7 +52,7 @@ module.controller('initController', ['$scope', '$rootScope', '$timeout', 'SPData
 
     if (typeof SP !== 'undefined') {
         SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function():void {
-            spContext = new SP.ClientContext.get_current();
+            spContext = new SP.ClientContext('https://portal.addventure.nl/blueside/');
 
             // STUDY: This 100ms timeout is needed for Internet Explorer, is there any other way??
             $timeout(function(): void {
@@ -97,9 +95,11 @@ module.service('SPData', function($http, $q, $interval): void {
         charts.push(chart);
     };
 
+        
     this.setChartReady = function(): void {
         chartsReady++;
-        if (chartsReady === charts.length) {
+        // TODO: Why why was this check here?
+        //if (chartsReady === charts.length) {
             $interval(function(): void {
                 if (liveUpdate && !liveUpdatePause) {
                     self.drawAllCharts();
@@ -108,7 +108,7 @@ module.service('SPData', function($http, $q, $interval): void {
 
             if (liveUpdate)
                 this.startLiveUpdate();
-        }
+        //}
     };
 
     this.drawAllCharts = function(): void {
@@ -252,12 +252,12 @@ module.service('SPData', function($http, $q, $interval): void {
 	var context = new SP.ClientContext.get_current();
 	var list = context.get_web().get_lists().getByTitle(chart.listTitle);
 	var view = list.get_views().getByTitle(chart.viewTitle);
-
 	// Get all columns selected in View editor
 	var viewFields = view.get_viewFields();
 
 	context.load(viewFields);
 	context.load(view);
+        
 	context.executeQueryAsync(
             function(sender, args): void {
 		var result = [];
@@ -398,10 +398,12 @@ module.service('SPData', function($http, $q, $interval): void {
 });
 
 module.controller('funnelController', ['$scope', function($scope): void {
+    
     $scope.$on('init.ready', function(): void {
-	
 	// Define context and determine list and view
-	var context = new SP.ClientContext.get_current();
+	var context = new SP.ClientContext('https://portal.addventure.nl/blueside/');
+	//var context = new SP.ClientContext.get_current();
+        
 	var list = context.get_web().get_lists().getByTitle(FUNNEL_LIST_TITLE);
 	var view = list.get_views().getByTitle(FUNNEL_VIEW_TITLE);
 	var fields = list.get_fields();
@@ -488,8 +490,8 @@ module.controller('funnelController', ['$scope', function($scope): void {
 				}
                             }
 			}
-			
-			$scope.data = group;			
+			$scope.data = group;
+                        console.log($scope.data);
                     });
 
             },
