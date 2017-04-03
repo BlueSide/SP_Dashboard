@@ -26,7 +26,7 @@ interface chart {
 // Time in milliseconds between refreshing data
 const RELOAD_TIMEOUT: number = 1000;
 
-const FUNNEL_LIST_TITLE: string = "Dossiers";
+const FUNNEL_LIST_TITLE: string = "Cases";
 const FUNNEL_VIEW_TITLE: string = "Funnel";
 
 //TODO: Fetch the blank string option from either template of HTML attribute
@@ -41,7 +41,6 @@ var spContext;
 const SITE_ROOT: string = 'https://portal.addventure.nl/blueside/';
 
 module.controller('initController', ['$scope', '$rootScope', '$timeout', 'SPData', function($rootScope, $scope, $timeout, SPData) {
-    
     // Manual counter to keep reference of externally loaded scripts
     var loadCounter: number = 2;
 
@@ -253,7 +252,6 @@ module.service('SPData', function($http, $q, $interval): void {
 	var context = new SP.ClientContext.get_current();
 	var list = context.get_web().get_lists().getByTitle(chart.listTitle);
 	var view = list.get_views().getByTitle(chart.viewTitle);
-	//var fields = list.get_fields();
 
 	// Get all columns selected in View editor
 	var viewFields = view.get_viewFields();
@@ -271,12 +269,12 @@ module.service('SPData', function($http, $q, $interval): void {
                     fields.push(e.get_current());
 		}
 
-		// NOTE: We need to enclose the aggregations XML with our own
+                // NOTE: We need to enclose the aggregations XML with our own
 		// root nodes to make it parsable XML
 		var xml;
 		var parser = new DOMParser();
 		var columnIndex = null;
-
+                
 		if (view.get_viewQuery() !== "") {
                     xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
                     var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
@@ -303,8 +301,8 @@ module.service('SPData', function($http, $q, $interval): void {
 
 		// This compiles a CAML Query from the settings specified in the view
 		var camlQuery = new SP.CamlQuery();
-
-		camlQuery.set_viewXml(view.get_listViewXml());
+                
+                camlQuery.set_viewXml(view.get_listViewXml());
 		
 		var listItems = list.getItems(camlQuery);
 		context.load(listItems);

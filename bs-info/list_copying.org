@@ -1,0 +1,33 @@
+#+OPTIONS: toc:nil  
+* How to copy a list from one site to another
+** Activate Scripting via the SharePoint Online Management Shell
+Scripting is now activated for around 24 hours. Everybody says it's bad practice, but since nobody gives another solution or alternative to exporting List Templates, this seems the least risky way.
+** Now we can go to List Settings in the source list and click 'Save list as template'
+** The Template is now available through Site Settings->List Templates
+** Click on the template to download the STP file
+** Open the STP file with any Archive tool (7-zip, WinRAR)
+** Extract manifest.xml
+** If needed, change the [[https://technet.microsoft.com/nl-nl/library/cc287874(v=office.12).aspx][language codes]] to the destination site's language in manifest.xml
+** Re-archive to an STP file
+*** Add the following contents:
+#+BEGIN_EXAMPLE
+; DIAMOND Directive File (.ddf)
+.OPTION EXPLICIT
+; Generate errors on variable typos
+.Set CabinetNameTemplate=mylist.stp
+.Set Cabinet=on
+.Set Compress=on
+
+;The files specified below are stored, compressed, in the cabinet file
+manifest.xml
+#+END_EXAMPLE
+*** In a shell execute the following command
+#+BEGIN_EXAMPLE
+makecab /f definition.ddf
+#+END_EXAMPLE
+*** The outputted file is in a folder named 'disk1' and is probably called 'mylist.stp'
+** On the destination site go to Site Settings->List Templates
+** Click 'Upload Document' and upload the new STP file
+** it should now appear in the list with the right language and also in 'Add an App'
+** ???
+** profit.

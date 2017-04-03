@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-	"outDir": "//portal.addventure.nl@SSL/DavWWWRoot/blueside/dev/SitePages/src",
+	"outDir": "//bluesidenl.sharepoint.com@SSL/SitePages/src",
 	"allowJs": true,
         "target": "es5"
     },
