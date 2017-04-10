@@ -40,14 +40,23 @@
 	    <nav class="navbar navbar-default">
 		<div class="container-fluid">
 		    <ul class="nav navbar-nav">
-			<li class="active"><a href="#">Dashboard</a></li>
-			<li class="dropdown">
-			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Lijsten<span class="caret"></span></a>
+			<li class="active"><a href="../../SitePages/Home.aspx">Top level</a></li>
+            <li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">CLC's<span class="caret"></span></a>
 			    <ul class="dropdown-menu">
-				<li><a href="../../Lists/Projects/AllItems.aspx">Projecten</a></li>
+				<li><a href="../../dev/SitePages/Home.aspx">CLC Central</a></li>
+				<li><a href="#">CLC East</a></li>
+                <li><a href="#">CLC West</a></li>
 			    </ul>
 			</li>
-			<li><a href="#">Rapportages</a></li>
+			<li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">Lists<span class="caret"></span></a>
+			    <ul class="dropdown-menu">
+				<li><a href="../../Lists/Projects/AllItems.aspx">Projects</a></li>
+			    </ul>
+			</li>
+            <li><a href="../../dev/Shared%20Documents">Directory</a></li>
+			<li><a href="#">Reports</a></li>
 			<li><a href="#">Maps</a></li> 
 		    </ul>
 		    <ul class="nav navbar-nav navbar-right">
@@ -62,127 +71,111 @@
 	    </nav>
 	    
 	    <div class="row">
-		<div class="col-md-2 col-sm-6">
-		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></div>
-			<div class="panel-body">
-			    <h2 class="bs-infoheader"><bs-value list="Cases" view="SuccesfullySupported"></h2>
-			    <div class="panel-footer">Succesvol ondersteund</div>
-			</div>
-		    </div>
+		<div class="col-md-3 col-sm-6">
+                    <a href="../../Lists/Projects/Realized%20FTE%20%20CLC%20Central.aspx">
+		        <div class="panel panel-default">
+			    <div class="bs-panel-icon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
+			    <div class="panel-body">
+			        <h2 class="bs-infoheader"><bs-value list="Projects" view="TotalRealizedFTE_CLCCentral"></bs-value></h2>
+			        <div class="panel-footer">Realized FTE</div>
+			    </div>
+		        </div>
+                    </a>
 		</div>
-		<div class="col-md-2 col-sm-6">
-		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span></div>
-			<div class="panel-body">
-			    <h2 class="bs-infoheader"><bs-value list="Cases" view="TotalHonoredFinances" format="currency"></bs-value></h2>
-			    <div class="panel-footer">Aan externe financiering</div>
-			</div>
-		    </div>
+		<div class="col-md-3 col-sm-6">
+                    <a href="../../Lists/Projects/Realized%20funding%20%20CLC%20Central.aspx">
+		        <div class="panel panel-default">
+			    <div class="bs-panel-icon"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span></div>
+			    <div class="panel-body">
+			        <h2 class="bs-infoheader"><bs-value list="Projects" view="TotalRealizedFunding_CLCCentral" format="currency"></bs-value></bs-value></h2>
+			        <div class="panel-footer">Realized funding</div>
+			    </div>
+		        </div>
+                    </a>
 		</div>
-		<div class="col-md-2 col-sm-6">
-		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
-			<div class="panel-body">
-			    <h2 class="bs-infoheader"><bs-value list="Cases" view="TotalFTE"></h2>
-			    <div class="panel-footer">Full Time Employment</div>
-			</div>
-		    </div>
+		<div class="col-md-3 col-sm-6">
+                    <a href="../../Lists/Projects/Referrals%20%20CLC%20Central.aspx">
+		        <div class="panel panel-default">
+			    <div class="bs-panel-icon"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span></div>
+			    <div class="panel-body">
+			        <h2 class="bs-infoheader"><bs-value list="Projects" view="TotalReferrals_CLCCentral" aggregation="COUNT"></h2>
+			            <div class="panel-footer">Referrals</div>
+			    </div>
+		        </div>
+                    </a>
 		</div>
-		<div class="col-md-2 col-sm-6">
-		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tree-deciduous" aria-hidden="true"></span></div>
-			<div class="panel-body">
-			    <h2 class="bs-infoheader">212 ton</h2>
-			    <div class="panel-footer">CO2 besparing</div>
-			</div>
-		    </div>
-		</div>
-		<div class="col-md-2 col-sm-6">
-		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span></div>
-			<div class="panel-body">
-			    <h2 class="bs-infoheader"><bs-value list="Cases" view="Referrals"></h2>
-			    <div class="panel-footer">Doorverwijzingen</div>
-			</div>
-		    </div>
-		</div>
-		<div class="col-md-2 col-sm-6">
-		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></div>
-			<div class="panel-body">
-			    <h2 class="bs-infoheader"><bs-value list="Cases" view="TotalCoffee" aggregation="SUM"></bs-value></h2>
-			    <div class="panel-footer">Liters koffie</div>
-			</div>
-		    </div>
+		<div class="col-md-3 col-sm-6">
+                    <a href="../../Lists/Projects/Active%20supported%20projects%20%20CLC%20Central.aspx">
+		        <div class="panel panel-default">
+			    <div class="bs-panel-icon"><span class="glyphicon glyphicon-refresh" aria-hidden="true"></span></div>
+			    <div class="panel-body">
+			        <h2 class="bs-infoheader"><bs-value list="Projects" view="TotalActiveProjects_CLCCentral"></h2>
+			            <div class="panel-footer">Active Supported projects</div>
+			    </div>
+		        </div>
+                    </a>
 		</div>
 	    </div>
 	    
 	    <div class="row">
 		<div class="col-md-6">
 		    <div class="panel panel-default" style="display:table;">
-			<div class="panel-body">
+			<div class="panel-body bs-removewhitespace">
 			    <div class="panel-heading">Funnel chart</div>
 			    
 			    <!--- Begin funnelchart --->
-			    <div class="row" ng-controller="funnelController">
+			    <div class="row bs-entirefunnel" ng-controller="funnelController">
 				<div class="col-md-2-bs-funnel">
 				    <table class="funnelcolumn column2">
 					<tr class="column2row"><td>Metal industries</td></tr>
 					<tr class="column2row"><td>Non-metallic minerals industries</td></tr>
 					<tr class="column2row"><td>Forest-based industries</td></tr>
 					<tr class="column2row"><td>Minerals and non-energy extractive industries</td></tr>
-					<tr class="column2row"><td></td></tr>
 				    </table>
 				</div>
 				<div class="col-md-3-bs-funnel">
 				    <table class="funnelcolumn column3">
-					<tr class="column3row"><td><bs-funnel-value group="Agri & Food" innerGroup="1. Lead" url="../../Lists/Cases/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column3row"><td><bs-funnel-value group="Business Services" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column3row"><td><bs-funnel-value group="Health" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column3row"><td><bs-funnel-value group="Industrial plastics" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column3row"><td><bs-funnel-value group="Tech" innerGroup="1. Lead" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column3lastrow"><td>1. Scouting</td></tr>
+					<tr class="column3row"><td><bs-funnel-value url="Scouting  Metal industries  CLC Central" list="Projects" view="ScoutingMetalIndustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column3row"><td><bs-funnel-value url="Scouting  Nonmetallic minerals industries  CLC Central" list="Projects" view="ScoutingNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column3row"><td><bs-funnel-value url="Scouting  Forestbased industries  CLC Central" list="Projects" view="ScoutingForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column3row"><td><bs-funnel-value url="Scouting  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="ScoutingMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column3lastrow"><td><a href="../../Lists/Projects/scouting.aspx">1. Scouting</a></td></tr>
 				    </table>
 				</div>
 				<div class="col-md-4-bs-funnel">
 				    <table class="funnelcolumn column4">
-					<tr class="column4row"><td><bs-funnel-value group="Agri & Food" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column4row"><td><bs-funnel-value group="Business Services" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column4row"><td><bs-funnel-value group="Health" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column4row"><td><bs-funnel-value group="Industrial plastics" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column4row"><td><bs-funnel-value group="Tech" innerGroup="2. Intake" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column4lastrow"><td>2. Screening</td></tr>
+                                        <tr class="column4row"><td><bs-funnel-value url="Screening  Metal industries  CLC Central" list="Projects" view="ScreeningMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column4row"><td><bs-funnel-value url="Screening  Nonmetallic minerals industries  CLC Central" list="Projects" view="ScreeningNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column4row"><td><bs-funnel-value url="Screening  Forestbased industries  CLC Central" list="Projects" view="ScreeningForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column4row"><td><bs-funnel-value url="Screening  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="ScreeningMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column4lastrow"><td><a href="../../Lists/Projects/screening.aspx">2. Screening</a></td></tr>
 				    </table>
 				</div>
 				<div class="col-md-5-bs-funnel">
 				    <table class="funnelcolumn column5">
-					<tr class="column5row"><td><bs-funnel-value group="Agri & Food" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column5row"><td><bs-funnel-value group="Business Services" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column5row"><td><bs-funnel-value group="Health" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column5row"><td><bs-funnel-value group="Industrial plastics" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column5row"><td><bs-funnel-value group="Tech" innerGroup="3. 1st level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column5lastrow"><td>3. Intake</td></tr>
+					<tr class="column5row"><td><bs-funnel-value url="Intake  Metal industries  CLC Central" list="Projects" view="IntakeMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column5row"><td><bs-funnel-value url="Intake  Nonmetallic minerals industries  CLC Central" list="Projects" view="IntakeNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column5row"><td><bs-funnel-value url="Intake  Forestbased industries  CLC Central" list="Projects" view="IntakeForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column5row"><td><bs-funnel-value url="Intake  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="IntakeMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column5lastrow"><td><a href="../../Lists/Projects/intake.aspx">3. Intake</a></td></tr>
 				    </table>
 				</div>
 				<div class="col-md-6-bs-funnel">
 				    <table class="funnelcolumn column6">
-					<tr class="column6row"><td><bs-funnel-value group="Agri & Food" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column6row"><td><bs-funnel-value group="Business Services" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column6row"><td><bs-funnel-value group="Health" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column6row"><td><bs-funnel-value group="Industrial plastics" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column6row"><td><bs-funnel-value group="Tech" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column6lastrow"><td>4. Support</td></tr>
+					<tr class="column6row"><td><bs-funnel-value url="Support  Metal industries  CLC Central" list="Projects" view="SupportMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column6row"><td><bs-funnel-value url="Support  Nonmetallic minerals industries  CLC Central" list="Projects" view="SupportNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column6row"><td><bs-funnel-value url="Support  Forestbased industries  CLC Central" list="Projects" view="SupportForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column6row"><td><bs-funnel-value url="Support  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="SupportMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column6lastrow"><td><a href="../../Lists/Projects/support.aspx">4. Support</a></td></tr>
 				    </table>
 				</div>
 				<div class="col-md-7-bs-funnel">
 				    <table class="funnelcolumn column7">
-					<tr class="column7row"><td><bs-funnel-value group="Agri & Food" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column7row"><td><bs-funnel-value group="Business Services" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column7row"><td><bs-funnel-value group="Health" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column7row"><td><bs-funnel-value group="Industrial plastics" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column7row"><td><bs-funnel-value group="Tech" innerGroup="4. 2nd level support" url="https://portal.addventure.nl/blueside/Lists/Fase/AllItems.aspx"></bs-funnel-value></td></tr>
-					<tr class="column7lastrow"><td>5. Evaluation</td></tr>
+					<tr class="column7row"><td><bs-funnel-value url="Evaluation  Metal industries  CLC Central" list="Projects" view="EvaluationMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value url="Evaluation  Nonmetallic minerals industries  CLC Central" list="Projects" view="EvaluationNonmetallicmineralsindustries_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value url="Evaluation  Forestbased industries  CLC Central" list="Projects" view="EvaluationForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column7row"><td><bs-funnel-value url="Evaluation  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="EvaluationMineralsandnonenergyextractiveindustries_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
+					<tr class="column7lastrow"><td><a href="../../Lists/Projects/evaluation.aspx">5. Evaluation</a></td></tr>
 				    </table>
 				</div>
 			    </div>
@@ -191,64 +184,82 @@
 			</div>
 		    </div>
 		</div>
+                
 		<div class="col-md-6">
 		    <div class="row">
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading">Aantal aanvragen per sector</div>
-				    <bs-chart type="PieChart" list="Cases" view="ApplicationsPerSector" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx" options="pie_chart" debugMode></bs-chart>
+				    <div class="panel-heading">Projects per Sector</div>
+				    <bs-chart type="PieChart" list="Projects" view="ProjectsPerSector_CLCCentral" aggregation="COUNT" url="../../Lists/Projects/ProjectsPerSector_CLCCentral.aspx" options="pie_chart"></bs-chart>
 				</div>
 			    </div>
 			</div>
-			<div class="col-md-6">
+                        <div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading">Bedrag per Sector</div>
-				    <bs-chart type="PieChart" title="Count" list="Cases" view="Gemiddelde bedrag per Sector" options="pie_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <div class="panel-heading">Projects assigned</div>
+				    <bs-chart type="ColumnChart" list="Projects" view="ProjectsPerUser_CLCCentral" options="column_chart_FTE" url="../../Lists/Projects/ProjectsPerUser_CLCCentral.aspx" category="Projects"></bs-chart>
 				</div>
 			    </div>
 			</div>
 		    </div>
-		    <div class="row">
+                    
+		    <div class="row">	
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading">Toegewezen FTE</div>
-				    <bs-chart type="ColumnChart" list="Cases" view="AssignedFTE" options="column_chart_FTE" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
+				    <div class="panel-heading">Requested fund types</div>
+				    <bs-chart type="PieChart" title="Count" list="Projects" view="ProjectsPerRequestedFundingType_CLCCentral" options="pie_chart" url="../../Lists/Projects/ProjectsPerRequestedFundingType_CLCCentral.aspx"></bs-chart>
 				</div>
 			    </div>
 			</div>
-			<div class="col-md-6">
+		        <div class="col-md-6">
 			    <div class="panel panel-default">
-				<div class="panel-body">
-				    <div class="panel-heading">Percentage aangevraagd per sector</div>
-				    <bs-chart type="SteppedAreaChart" list="Cases" view="AvgTRLPerPhase" options="stepped_area_chart_small" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
-				</div>
+			        <div class="panel-body">
+				    <div class="panel-heading">Realized fund types</div>
+				    <bs-chart type="PieChart" title="Count" list="Projects" view="ProjectsPerRealizedFundingType_CLCCentral" options="pie_chart" url="../../Lists/Projects/ProjectsPerRealizedFundingType_CLCCentral.aspx"></bs-chart>
+			        </div>
 			    </div>
-			</div>
+		        </div>
 		    </div>
 		</div>
 	    </div>
-	    <div class="row">
-		<div class="col-md-6">
-		    <div class="panel panel-default">
-			<div class="panel-body">
-			    <div class="panel-heading">Aangevraagd bedrag</div>
-			    <bs-chart type="SteppedAreaChart" list="Cases" view="AvgTRLPerPhase" options="stepped_area_chart" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
-			</div>
-		    </div>
-		</div>
-		<div class="col-md-6">
-		    <div class="panel panel-default">
-			<div class="panel-body">
-			    <div class="panel-heading">Gemiddelde TRL per fase</div>
-			    <bs-chart type="ColumnChart" list="Cases" view="AvgTRLPerPhase" options="column_chart_TRL" url="https://portal.addventure.nl/blueside/Lists/Fase/Projecten%20per%20sector.aspx"></bs-chart>
-			</div>
-		    </div>
-		</div>
 
-	</div>
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="row">
+                        <div class="col-md-6 col-md-push-6">
+                            <div class="panel panel-default">
+                                <div class="panel-body">
+                                    <div class="panel-heading">Geographic overview</div>
+                                    <bs-chart type="GeoChart" list="Projects" view="GeoChart_CLCCentral" options="geo_chart" url="../../Lists/Projects/GeoChart_CLCCentral.aspx"></bs-chart>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-md-pull-6">
+                            <div class="row">
+		                <div class="col-md-12">
+		                    <div class="panel panel-default">
+			                <div class="panel-body">
+			                    <div class="panel-heading">Requested funds per TRL level</div>
+			                    <bs-chart type="SteppedAreaChart" list="Projects" view="ReqFundingPerTRLYearly_CLCCentral" options="stepped_area_chart" url="../../Lists/Projects/ReqFundingPerTRLYearly_CLCCentral.aspx"></bs-chart>
+			                </div>
+		                    </div>
+		                </div>
+		                <div class="col-md-12">
+		                    <div class="panel panel-default">
+			                <div class="panel-body">
+			                    <div class="panel-heading">Average TRL at start</div>
+			                    <bs-chart type="ColumnChart" list="Projects" view="AvgTRLStartPerSectorPerYear_CLCCentral" options="column_chart_TRL_Yearly" url="../../Lists/Projects/AvgTRLStartPerSectorPerYear_CLCCentral.aspx" ></bs-chart>
+			                </div>
+                                    </div>
+		                </div>
+		            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>           
 	</div>
 	<div class="centered">Copyright © 2017 Blue Side</div>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

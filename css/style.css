@@ -42,6 +42,11 @@ tr.column6row {
     font-size: 25px;
 }
 
+tr.column7row {
+    height: 50px;
+    font-size: 25px;
+}
+
 .column2 {
     width: 100%;
 }
@@ -66,42 +71,42 @@ tr.column6row {
 }
 
 table.funnelcolumn.column2 {
-    background-color: #00b0ff;
+    background-color: #16A085;
     color: #fff;
 }
 
 table.funnelcolumn.column3 {
     margin-top: 25px;
     margin-bottom: 0px;
-    background-color: #0096d9;
+    background-color: #039478;
     color: #fff;
 }
 
 table.funnelcolumn.column4 {
     margin-top: 50px;
     margin-bottom: 50px;
-    background-color: #007db5;
+    background-color: #007F66;
     color: #fff;
 }
 
 table.funnelcolumn.column5 {
     margin-top: 75px;
     margin-bottom: 75px;
-    background-color: #00618B;
+    background-color: #006F59;
     color: #fff;
 }
 
 table.funnelcolumn.column6 {
     margin-top: 100px;
     margin-bottom: 100px;
-    background-color: #004B6C;
+    background-color: #005F4C;
     color: #fff;
 }
 
 table.funnelcolumn.column7 {
-    margin-top: 100px;
-    margin-bottom: 100px;
-    background-color: #004B6C;
+    margin-top: 125px;
+    margin-bottom: 125px;
+    background-color: #004F40;
     color: #fff;
 }
 
@@ -186,7 +191,7 @@ td, th {
 
 .navbar-default .navbar-nav>.active>a, .navbar-default .navbar-nav>.active>a:focus, .navbar-default .navbar-nav>.active>a:hover {
     color: #fff;
-    background-color: #007db5;
+    background-color: #465c74;
 }
 
 .navbar-right {
@@ -207,8 +212,8 @@ td, th {
     position: relative;
     min-height: 1px;
     padding-right: 0px;
-    padding-left: 20px;
-    width: 24.66666667%;
+    padding-left: 0px;
+    width: 20%;
     float: left;
     margin-left: -1px;
 }
@@ -218,7 +223,7 @@ td, th {
     min-height: 1px;
     padding-right: 0px;
     padding-left: 0px;
-    width: 16.66666667%;
+    width: 16%;
     float: left;
     margin-left: -1px;
 }
@@ -228,7 +233,7 @@ td, th {
     min-height: 1px;
     padding-right: 0px;
     padding-left: 0px;
-    width: 16.66666667%;
+    width: 16%;
     float: left;
     margin-left: -1px;
 }
@@ -238,7 +243,7 @@ td, th {
     min-height: 1px;
     padding-right: 0px;
     padding-left: 0px;
-    width: 16.66666667%;
+    width: 16%;
     float: left;
     margin-left: -1px;
 }
@@ -248,7 +253,7 @@ td, th {
     min-height: 1px;
     padding-right: 0px;
     padding-left: 0px;
-    width: 16.66666667%;
+    width: 16%;
     float: left;
     margin-left: -1px;
 }
@@ -258,7 +263,7 @@ td, th {
     min-height: 1px;
     padding-right: 0px;
     padding-left: 0px;
-    width: 16.66666667%;
+    width: 16%;
     float: left;
     margin-left: -1px;
 }
@@ -271,17 +276,17 @@ td, th {
     min-height: 80px;
     padding-bottom: 0px;
     font-size: 45px;
-    color: #575fa7;
+    color: #24bb9c;
 }
 
 h2.bs-infoheader {
-    color: #575fa7;
+    color: #24bb9c;
     margin-bottom: 0px;
     font-size: 22px;
 }
 
 h2.bs-infoheader {
-    font-size: 22px;
+    font-size: 20px;
 }
 
 #s4-workspace {
@@ -290,12 +295,19 @@ h2.bs-infoheader {
     overflow-x: hidden;
 }
 
+#suiteBarLeft {
+    background-color: #465c74;
+    color: #fff;
+    width: 100%;
+    vertical-align: middle;
+}
+
 
 /*Begin BS checkbox*/
 .slideThree {
     width: 80px;
     height: 26px;
-    background: #5760a6;
+    background: #465c74;
     margin: 0px auto;
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
@@ -482,4 +494,35 @@ and (min-width : 986px) {
 
 .bs-funnel-value:visited {
     color: #ffffff;
+}
+
+.bs-entirefunnel {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
+.bs-removewhitespace {
+    margin-bottom: 20px;
+}
+
+a:visited {
+    color: #666666;
+}
+
+a {
+    color: #666666;
+}
+
+a:focus, a:hover {
+    color: #24bb9c;
+    text-decoration: none;
+}
+
+@media (max-width: 768px) {
+.container-fluid {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+}
 }

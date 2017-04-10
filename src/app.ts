@@ -95,7 +95,6 @@ module.service('SPData', function($http, $q, $interval): void {
         charts.push(chart);
     };
 
-        
     this.setChartReady = function(): void {
         chartsReady++;
         // TODO: Why why was this check here?
@@ -106,8 +105,8 @@ module.service('SPData', function($http, $q, $interval): void {
                 }
             }, RELOAD_TIMEOUT);
 
-            if (liveUpdate)
-                this.startLiveUpdate();
+        if (liveUpdate)
+            this.startLiveUpdate();
         //}
     };
 
@@ -128,9 +127,10 @@ module.service('SPData', function($http, $q, $interval): void {
     // the success value always contains a single value
     this.getValue = function(listTitle: string, viewTitle: string, aggregationType: string): any {
         return $q(function(success, error): any {
-	    
             // Define context and determine list and view
-            var context = new SP.ClientContext.get_current();
+            //var context = new SP.ClientContext.get_current();
+            var context = new SP.ClientContext('https://portal.addventure.nl/blueside/');
+            
             var list = context.get_web().get_lists().getByTitle(listTitle);
             var view = list.get_views().getByTitle(viewTitle);
             //var fields = list.get_fields();
@@ -168,19 +168,19 @@ module.service('SPData', function($http, $q, $interval): void {
                     }
 
 		    var aggregation: Aggregation;
-
+                    
 		    if (view.get_aggregations() === "")
 		    {
-			if(typeof(aggregationType) === 'undefined')
+			if(typeof(aggregationType) !== 'undefined')
 			{
-			    console.warn(viewTitle + ": An Aggregation Type is required when fetching a single value");
-			}
-			else
-			{
-			    aggregation = {
+                            aggregation = {
 				field: fields[0],
 				type: aggregationType
 			    };
+			}
+			else
+			{
+			    console.warn(viewTitle + ": An Aggregation Type is required when fetching a single value");
 			}
 		    }
 		    else
@@ -210,7 +210,7 @@ module.service('SPData', function($http, $q, $interval): void {
                                 var item = liEnum.get_current();
                                 var row: any[] = [];
                                 for (var i:number = 0; i < fields.length; i++) {
-				    row[i] = item.get_item(fields[i]);
+				    row[0] = item.get_item(fields[0]);
                                 }
 				result.push(row);
 			    }
@@ -249,8 +249,10 @@ module.service('SPData', function($http, $q, $interval): void {
     // Draws the passed chart according to the List data and View settings
     this.getData = function(chart): any {
 	// Define context and determine list and view
-	var context = new SP.ClientContext.get_current();
-	var list = context.get_web().get_lists().getByTitle(chart.listTitle);
+	//var context = new SP.ClientContext.get_current();
+        var context = new SP.ClientContext('https://portal.addventure.nl/blueside/');
+
+        var list = context.get_web().get_lists().getByTitle(chart.listTitle);
 	var view = list.get_views().getByTitle(chart.viewTitle);
 	// Get all columns selected in View editor
 	var viewFields = view.get_viewFields();
@@ -275,7 +277,7 @@ module.service('SPData', function($http, $q, $interval): void {
 		var parser = new DOMParser();
 		var columnIndex = null;
                 
-		if (view.get_viewQuery() !== "") {
+		if(view.get_viewQuery() !== "") {
                     xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
                     var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
                     var groupBy = [];
@@ -284,21 +286,31 @@ module.service('SPData', function($http, $q, $interval): void {
                     }
 		}
 
-		if (view.get_aggregations() !== "") {
-                    xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
+                var aggregations = [];
+                if(typeof(chart.aggregation) !== 'undefined')
+                {
+                    var aggregation = {
+                        field: "",
+                        type: chart.aggregation
+		    };
+		    aggregations.push(aggregation);
+                }
+                else
+                {
+		    if(view.get_aggregations() !== "") {
+                        xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
 
-                    var aggregationsLength = xml.childNodes[0].childNodes.length;
-                    var aggregations = [];
-                    for (var i:number = 0; i < aggregationsLength; i++) {
-			var aggregation = {
-                            field: xml.childNodes[0].childNodes[i].getAttribute("Name"),
-                            type: xml.childNodes[0].childNodes[i].getAttribute("Type")
-			};
-			aggregations.push(aggregation);
-                    }
+                        var aggregationsLength = xml.childNodes[0].childNodes.length;
+                        for (var i:number = 0; i < aggregationsLength; i++) {
+			    aggregation = {
+                                field: xml.childNodes[0].childNodes[i].getAttribute("Name"),
+                                type: xml.childNodes[0].childNodes[i].getAttribute("Type")
+			    };
+			    aggregations.push(aggregation);
+                        }
 
-		}
-
+		    }
+                }
 		// This compiles a CAML Query from the settings specified in the view
 		var camlQuery = new SP.CamlQuery();
                 
@@ -314,11 +326,11 @@ module.service('SPData', function($http, $q, $interval): void {
                             var item = liEnum.get_current();
                             var row = [];
                             for (var i:number = 0; i < fields.length; i++) {
-				row[i] = item.get_item(fields[i]);
-				if(row[i] === null)
-				{
-				    row[i] = SP_BLANK_STRING;
-				}
+                                row[i] = item.get_item(fields[i]);
+                                if(row[i] === null)
+                                {
+	                            row[i] = 0;
+                                }
                             }
                             result.push(row);
 			}
@@ -332,7 +344,7 @@ module.service('SPData', function($http, $q, $interval): void {
 			    var xCats = group2(result, 0);
 			    if(chart.wrapper.getType() === 'PieChart')
 			    {
-				gData.addColumn('number', 'yAxis');
+				gData.addColumn('number', chart.category);
 				
 				for(var cat in xCats)
 				{
@@ -347,17 +359,24 @@ module.service('SPData', function($http, $q, $interval): void {
 				
 			    }
 			    else
-			    {
-				
+			    {				
 				// get the first category
 				for(var cat in xCats) break;
-				var yCats = group2(xCats[cat], groupByLength - 1);
-				
-				for(var yCat in yCats)
-				{
-				    gData.addColumn('number', yCat);
-				}
+                                var yCats = group2(xCats[cat], groupByLength - 1);
 
+                                //NOTE: When only one category, use the custom label provided trough the directive
+                                if(groupByLength == 1)
+                                {
+                                    gData.addColumn('number', chart.category);
+                                }
+                                else
+                                {
+                                    for(var yCat in yCats)
+				    {
+				        gData.addColumn('number', yCat);
+				    }
+                                }
+                                
 				for(var cat in xCats)
 				{
 				    var row: any[] = [cat];
@@ -376,7 +395,7 @@ module.service('SPData', function($http, $q, $interval): void {
 				    {
 					row.push(window[aggregations[0].type](getArrayFromSPData(group[cat], groupByLength)));
 				    }
-				    gData.addRow(row);
+                                    gData.addRow(row);
 				}
 			    }
 			}
@@ -491,7 +510,6 @@ module.controller('funnelController', ['$scope', function($scope): void {
                             }
 			}
 			$scope.data = group;
-                        console.log($scope.data);
                     });
 
             },

@@ -49,13 +49,35 @@ module.directive( "bsValue", ['SPData', function(SPData) {
     };
 }]);
 
-module.directive( "bsFunnelValue", [function($scope) {
+module.directive( "bsFunnelValue", ['SPData', function(SPData) {
+    var _spData = SPData;
     return {
 	restrict: "E",
-	scope: false,
-	template: function (element, attributes) {
-            return '<a class="bs-funnel-value" href="'+attributes.url+'">{{data["'+attributes.group+'"]["'+attributes.innergroup+'"]}}</a>';
-	}
+	
+	scope: {
+	    // This is to isolate the scope
+	},
+
+	link: function($scope, element, attributes, SPData) {
+	    // Wait for SharePoint context to finish loading
+	    $scope.$on('init.ready', function() {
+		$scope.url = attributes.url;				
+		_spData.getValue(attributes.list, attributes.view, attributes.aggregation).then(function (result) {
+		    switch(attributes.format)
+		    {
+		    case "currency":
+			$scope.value = bsFormatSPCurrency(result, false);
+			break;
+		    default:
+			$scope.value = result;
+			break;
+		    }
+		});
+	    });
+	},
+
+	templateUrl: 'templates/funnel_value.html'
+	
     };
 }]);
 
@@ -69,12 +91,14 @@ module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, 
 	link: function($scope, element, attributes, SPData) {
 	    // Wait for SharePoint context to finish loading
 	    $scope.$on('init.ready', function() {
-		var chart = {
-		    listTitle: attributes.list,
-		    viewTitle: attributes.view,
-		    wrapper: null,
-		    chartOptions: null
-		};
+                var chart = {
+                    listTitle: attributes.list,
+                    viewTitle: attributes.view,
+                    aggregation: attributes.aggregation,
+                    category: attributes.category,
+                    wrapper: null,
+                    chartOptions: null
+                };
 
 		var templateOptions: any = window[attributes.options];
 		templateOptions.title = attributes.title;
@@ -91,7 +115,7 @@ module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, 
 		_spData.registerChart(chart);
 
 		/*
-		 * NOTE
+		 * NOTE:
 		 * The 'ready' event only gets fired when a chart is drawn without errors.
 		 * In the event one of the charts throws an error, Live Update won't start,
 		 * because there are more charts registered than there are ready
@@ -114,7 +138,7 @@ module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, 
 		  NOTE: 
 		  We stop updating data to prevent chart tooltips to disappear
 		  on chart draw
-		 */			
+		*/			
 		function onChartMouseOver() {
 		    _spData.stopLiveUpdate();
 		}
