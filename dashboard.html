@@ -30,6 +30,7 @@
 	<script src="src/bsToolbox.js"></script>
 	<script src="src/directives.js"></script>
 	<script src="src/aggregations.js"></script>
+	<script src="templates/templates.js"></script>
 	
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 	
@@ -264,6 +265,18 @@
 		    <div class="panel panel-default">
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Aangevraagd bedrag</div>
+                            <bs-chart
+                                type="SteppedAreaChart"
+                                list="Cases"
+                                xaxis="Phase"
+                                yaxis="FTE"
+                                zaxis="Sector"
+                                options="stepped_area_chart"
+                                aggregation="count"
+                                groupxaxis
+                                groupzaxis
+                            >
+                            </bs-chart>
 			</div>
 		    </div>
 		</div>
@@ -271,6 +284,18 @@
 		    <div class="panel panel-default">
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
+                            <bs-chart
+                                type="ColumnChart"
+                                list="Cases"
+                                xaxis="Phase"
+                                yaxis="FTE"
+                                zaxis="Sector"
+                                options="column_chart_FTE" 
+                                aggregation="count"
+                                groupxaxis
+                                groupzaxis
+                            >
+                            </bs-chart>
 			</div>
 		    </div>
 		</div>

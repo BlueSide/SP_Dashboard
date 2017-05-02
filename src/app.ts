@@ -158,6 +158,7 @@ function getFieldByTitle(title: string, fieldData: any): any
 // Get the type from the Field attributes and convert it to a Google Data TypeAsString
 function getFieldType(title: string, fieldData: any): string
 {
+    if(!title) return 'string';
     let spType = getFieldByTitle(title, fieldData).TypeAsString;
     return getGoogleType(spType);
 }
@@ -315,7 +316,7 @@ function getGoogleType(spType: string): string
     case 'Boolean':
         return 'boolean';
     case 'User':
-        return "User";// TODO: implement
+        return "string";// TODO: implement
 /*
     case 'Threading':
     case 'Computed':
@@ -332,4 +333,21 @@ function getGoogleType(spType: string): string
     case 'OutcomeChoice': // STUDY: what is this?
 */
     }
+}
+
+function group(field: string, listData: any[])
+{
+    let groups: string[] = [];
+    let entries: any = getFieldEntries(field, listData, [], []);
+    // Iterate over entries to get all possible groups
+    for(let entry of entries)
+    {
+        // Check if groups already contains the entry
+        if(!(groups.indexOf(entry) > -1))
+        {
+            groups.push(entry);
+        }
+    }
+
+    return groups;
 }

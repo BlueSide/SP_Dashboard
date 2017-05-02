@@ -26,12 +26,12 @@ module.directive("bsValue", ["SPData", function(SPData) {
             // Wait for the list to be downloaded and ready
             $scope.$on(attributes.list+'.ready', function (msg, listData, fieldData) {
 
-                let arr:any[] = getFieldEntries(attributes.field, listData, selects, filters);
+                let data:any[] = getFieldEntries(attributes.field, listData, selects, filters);
                 
                 let resultValue: number = 0;
 
                 let aggregationFunction = getAggregationFunction(attributes.aggregation);
-                resultValue = aggregationFunction(arr);
+                resultValue = aggregationFunction(data);
                 $scope.value = resultValue;
 
             });
@@ -56,68 +56,76 @@ module.directive("bsChart", ["SPData", function(SPData) {
             // Wait until the list is loaded and parsed
             $scope.$on(attributes.list+'.ready', function (msg, listData, fieldData) {
                 let groupXAxis: boolean = element[0].hasAttribute('groupxaxis');
-                console.info("Group X-axis: "+groupXAxis);
+                let groupZAxis: boolean = element[0].hasAttribute('groupzaxis');
+
+                let options: any = window[attributes.options];
+                options.title = attributes.title;
+                
                 // Initialize Google Charts wrapper
                 let wrapper = new google.visualization.ChartWrapper({
                     chartType: attributes.type,
-                    containerId: element.children()[0]
+                    containerId: element.children()[0],
+                    options: options                    
                 });
 
-                // TODO: Get options from a template file
-                let options: any = {
-                    title: "testTitle",
-                };
+                // map chart options to an object from templates.js
+                
 
                 // Initialize Google DataTable
                 let gData = new google.visualization.DataTable();
-                
+
+                // Get aggregate function pointer
                 let aggregateFunction = getAggregationFunction(attributes.aggregation);
-                let arr: any[] = [];
+
+                let data: any[] = [];
 
                 let fieldTypeX = getFieldType(attributes.xaxis, fieldData);
                 let fieldTypeY = getFieldType(attributes.yaxis, fieldData);
-
-                if(fieldTypeX == "User")
-                {
-                    // Get Username by id
-                    fieldTypeX = 'string';
-                    _spData.getUserById(20);
-                    $scope.$on('user.ready', function (msg, userData) {
-                        console.log(userData);
-                    });
-                }
-                
-                gData.addColumn(fieldTypeX, attributes.xaxis);
-                gData.addColumn(fieldTypeY, attributes.yaxis);
-
+                let fieldTypeZ = getFieldType(attributes.zaxis, fieldData);
+  
                 // Group data
-                let groups: string[] = [];
+                let xgroups: string[] = [];
+                let zgroups: string[] = [];
+                
                 if(groupXAxis)
                 {
-                    // TODO: Group by x-axis
-                    let entries: any = getFieldEntries(attributes.xaxis, listData, [], []);
-                    // Iterate over entries to get all possible groups
-                    for(let entry of entries)
-                    {
-                        // Check if groups already contains the entry
-                        if(!(groups.indexOf(entry) > -1))
-                        {
-                            groups.push(entry);
-                        }
-                    }
+                    xgroups = group(attributes.xaxis, listData);
                 }
 
-                // TODO: handle no grouping
-                for(let group of groups)
+                if(groupZAxis)
                 {
-                    let select = [{field: attributes.xaxis, value: group}];
-                    arr.push(getFieldEntries(attributes.yaxis, listData, select, []));
+                    zgroups = group(attributes.zaxis, listData);
                 }
                 
-                // Add each array entry to the Google DataTable
-                for(var i = 0; i < arr.length; ++i)
+                // TODO: handle no grouping
+                for(let xgroup of xgroups)
                 {
-                    gData.addRow([groups[i], aggregateFunction(arr[i])]);
+                    let select = [{field: attributes.xaxis, value: xgroup}];
+                    data.push(getFieldEntries(attributes.yaxis, listData, select, []));
+                }
+                
+                gData.addColumn('string', 'label');
+
+                for(let zgroup of zgroups)
+                {
+                    gData.addColumn('number', zgroup);
+                    
+                }
+
+                if(zgroups.length < 1) gData.addColumn('number', 'value');
+                
+                // Add each array entry to the Google DataTable
+                for(var i = 0; i < data.length; ++i)
+                {
+                    let row:any[] = [xgroups[i]];
+                    if(zgroups.length < 1) row.push(aggregateFunction(data[i]));
+                    for(let zgroup of zgroups)
+                    {
+                        let select = [{field: attributes.zaxis, value: zgroup}];
+                        let filter = [{field: attributes.xaxis, value: xgroups[i]}];
+                        row.push(aggregateFunction(getFieldEntries(attributes.yaxis, listData, filter, select)));
+                    }
+                    gData.addRow(row);
                 }
 
                 // Update the chart with new data and redraw it
