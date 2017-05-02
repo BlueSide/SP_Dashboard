@@ -1,0 +1,16 @@
+                                       
+*Optimalisatie <bs-value>*
+                       
+>Huidige situatie
+
+- De gast doet een bestelling in de keuken
+- De keuken bereid de complete menukaart bij iedere bestelling
+- De gehele bestelling wordt door de gast opgehaald
+- De gast eet alleen het stukje wat hij besteld heeft
+
+>Gewenste situatie
+
+- Alle bestellingen in het hele restaurant worden in één keer opgenomen
+- De keuken bereid de complete menukaart 1 keer
+- Als de keuken klaar is krijgen de gasten een melding dat de bestelling opgehaald kan worden
+- De gast haalt alleen het gedeelte wat hij besteld heeft op

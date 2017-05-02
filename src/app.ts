@@ -1,517 +1,337 @@
+
+// Declare Angular, and create the Dashboard module
 declare var angular: any;
-declare var SP: any;
-declare var google: any;
-
-//STUDY: This is not the right place to let TypeScript know about this function.
-// Check where I should leave this.
-interface Node {
-    getAttribute(attr: string): string;
-}
-
-interface SPField {
-    title: string;
-    dataType: string;
-}
-
-interface Aggregation {
-    field: string;
-    type: string;
-}
-/*
-interface chart {
-    wrapper;
-    options;
-}
-*/
-// Time in milliseconds between refreshing data
-const RELOAD_TIMEOUT: number = 1000;
-
-const FUNNEL_LIST_TITLE: string = "Cases";
-const FUNNEL_VIEW_TITLE: string = "Funnel";
-
-//TODO: Fetch the blank string option from either template of HTML attribute
-const SP_BLANK_STRING: string = "Unassigned";
-
-var liveUpdate: boolean = false;		// Value stored in cookie, this sets the default value for first use
-var liveUpdatePause: boolean = false;
-
 var module = angular.module('bsDashboard', []);
-var spContext;
 
-const SITE_ROOT: string = 'https://portal.addventure.nl/blueside/';
+var Settings: any = {
+    webURL: "https://bluesidenl.sharepoint.com",
+    web: "",
+    updateInterval: 1000,
+}
 
-module.controller('initController', ['$scope', '$rootScope', '$timeout', 'SPData', function($rootScope, $scope, $timeout, SPData) {
-    // Manual counter to keep reference of externally loaded scripts
-    var loadCounter: number = 2;
+// All lists needing to be updated
+var registeredLists:string[] = [];
 
-    google.charts.load("current", { packages: ["corechart", "gauge"] });
-    google.charts.setOnLoadCallback(function(): void {
-        loadCounter--;
-        checkInitFinished();
+// Initialisation controller. Resides in <html>
+module.controller('initController', ["$scope", function($scope): void {
+    console.log("initController");
+    // Initialize Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(function() {
+        $scope.$broadcast('gc.ready');
     });
-
-    $scope.translationStrings = translationStrings;
-
-    if (typeof SP !== 'undefined') {
-        SP.SOD.executeFunc('sp.js', 'SP.ClientContext', function():void {
-            spContext = new SP.ClientContext.get_current();
-
-            // STUDY: This 100ms timeout is needed for Internet Explorer, is there any other way??
-            $timeout(function(): void {
-                loadCounter--;
-                checkInitFinished();
-            }, 100);
-
-        });
-
-        $(window).resize(function(): void {
-            SPData.drawAllCharts();
-        });
-    }
-
-    function checkInitFinished(): void {
-        if (loadCounter === 0) {
-            $rootScope.$broadcast('init.ready');
-        }
-    }
+    
 }]);
 
-module.controller('liveUpdateController', ['$scope', 'SPData', function($scope, SPData): void {
-    liveUpdate = (getCookie("liveUpdate") === 'true');
+// Controls the Live Update button
+module.controller('liveUpdateController', ['$scope', '$interval', 'SPData', function($scope, $interval, SPData): void {
 
-    $scope.cbLiveUpdate = liveUpdate;
-    $scope.onLiveUpdateClick = function(): void {
-        liveUpdate = $scope.cbLiveUpdate;
-        setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
-    };
-}]);
+    //NOTE: We need to initialize last, so the $scope knows about it's functions
+    var liveUpdateTimer: any;
 
-module.service('SPData', function($http, $q, $interval): void {
-    var charts = [];
-    var chartsReady:number = 0;
-
-    //STUDY: is this realy the best way to pass this?
-    var self = this;
-
-    this.registerChart = function(chart): void {
-        charts.push(chart);
-    };
-
-    this.setChartReady = function(): void {
-        chartsReady++;
-        if (chartsReady === charts.length) {
-            $interval(function(): void {
-                if (liveUpdate && !liveUpdatePause) {
-                    self.drawAllCharts();
-                }
-            }, RELOAD_TIMEOUT);
-
-            if (liveUpdate)
-                this.startLiveUpdate();
-        }
-    };
-
-    this.drawAllCharts = function(): void {
-        for (var i:number = 0; i < charts.length; i++) {
-            this.getData(charts[i]);
-        }
-    };
-
-    this.startLiveUpdate = function(): void {
-        liveUpdatePause = false;
-    };
-
-    this.stopLiveUpdate = function(): void {
-        liveUpdatePause = true;
+    $scope.startUpdating = function (): void
+    {
+        liveUpdateTimer = $interval($scope.update, Settings.updateInterval);
     };
     
-    // the success value always contains a single value
-    this.getValue = function(listTitle: string, viewTitle: string, aggregationType: string): any {
-        return $q(function(success, error): any {
-	    
-            // Define context and determine list and view
-            var context = new SP.ClientContext.get_current();
-            var list = context.get_web().get_lists().getByTitle(listTitle);
-            var view = list.get_views().getByTitle(viewTitle);
-            //var fields = list.get_fields();
-            // Get all columns selected in View editor
-            var viewFields = view.get_viewFields();
-            context.load(viewFields);
-            context.load(view);
-            context.executeQueryAsync(
-                function(sender, args) {
-                    var result = [];
-                    var fields: string[] = [];
-                    // Iterate over all columns and store them in the result object
-                    var e = viewFields.getEnumerator();
+    // Switch state on click and set the new state in cookie
+    $scope.onLiveUpdateClick = function(): void
+    {
+        
+        setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
 
-                    while (e.moveNext()) {
-                        fields.push(e.get_current());
-                    }
-
-                    // NOTE: We need to enclose the aggregations XML with our own
-                    // root nodes to make it parsable XML
-                    var xml;
-                    var parser = new DOMParser();
-                    var columnIndex: number = null;
-
-                    if (view.get_viewQuery() !== "") {
-                        xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
-                        var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
-                        var groupBy: string[] = [];
-                        for (var i:number = 0; i < groupByLength; i++) {
-			    if(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"))
-			    {
-				groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
-                            }
-			}
-                    }
-
-		    var aggregation: Aggregation;
-
-		    if (view.get_aggregations() === "")
-		    {
-			if(typeof(aggregationType) === 'undefined')
-			{
-			    console.warn(viewTitle + ": An Aggregation Type is required when fetching a single value");
-			}
-			else
-			{
-			    aggregation = {
-				field: fields[0],
-				type: aggregationType
-			    };
-			}
-		    }
-		    else
-		    {
-			xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
-
-			aggregation = {
-                            field: xml.childNodes[0].childNodes[0].getAttribute("Name"),
-                            type: xml.childNodes[0].childNodes[0].getAttribute("Type")
-			};
-		    }
-
-		    // This compiles a CAML Query from the settings specified in the view
-		    var camlQuery = new SP.CamlQuery();
-
-		    camlQuery.set_viewXml(view.get_listViewXml());
-
-		    var listItems = list.getItems(camlQuery);
-		    context.load(listItems);
-		    context.executeQueryAsync(
-                        function(sender, args) {
-
-			    // Iterate over all items and store them for every column in the result object
-			    var liEnum = listItems.getEnumerator();
-			    while (liEnum.moveNext())
-			    {
-                                var item = liEnum.get_current();
-                                var row: any[] = [];
-                                for (var i:number = 0; i < fields.length; i++) {
-				    row[i] = item.get_item(fields[i]);
-                                }
-				result.push(row);
-			    }
-
-			    if (groupByLength > 0)
-			    {
-                                var columnIndex = fields.indexOf(groupBy[0]);
-                                var group = group2(result, columnIndex);
-
-                                //TODO: check for second groupBy
-                                if (groupByLength > 1) {
-				    for (var property in group) {
-                                        if (group.hasOwnProperty(property)) {
-					    group[property] = group2(group[property], fields.indexOf(groupBy[1]));
-                                        }
-				    }
-                                }
-			    }
-
-			    result = window[aggregation.type](result);
-			    success(result);
-                        });
-
-                },
-
-                function(sender, args) {
-                    console.warn("Warning: " + args.get_message() + "\n" +
-				 "\'" + viewTitle + "\'"
-				);
-
-                }
-            );
-        });
+        if($scope.cbLiveUpdate)
+        {
+            $scope.startUpdating();
+        }
+        else
+        {
+            $scope.stopUpdating();
+        }
     };
 
-    // Draws the passed chart according to the List data and View settings
-    this.getData = function(chart): any {
-	// Define context and determine list and view
-	var context = new SP.ClientContext.get_current();
-	var list = context.get_web().get_lists().getByTitle(chart.listTitle);
-	var view = list.get_views().getByTitle(chart.viewTitle);
+    $scope.update = function (): void
+    {
+        for(let entry of registeredLists)
+        {
+            SPData.getList(entry);
+        }
+    };
 
-	// Get all columns selected in View editor
-	var viewFields = view.get_viewFields();
-
-	context.load(viewFields);
-	context.load(view);
-	context.executeQueryAsync(
-            function(sender, args): void {
-		var result = [];
-		var fields = [];
-		// Iterate over all columns and store them in the result object
-		var e = viewFields.getEnumerator();
-
-		while (e.moveNext()) {
-                    fields.push(e.get_current());
-		}
-
-                // NOTE: We need to enclose the aggregations XML with our own
-		// root nodes to make it parsable XML
-		var xml;
-		var parser = new DOMParser();
-		var columnIndex = null;
-                
-		if (view.get_viewQuery() !== "") {
-                    xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
-                    var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
-                    var groupBy = [];
-                    for (var i:number = 0; i < groupByLength; i++) {
-			groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
-                    }
-		}
-
-		if (view.get_aggregations() !== "") {
-                    xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
-
-                    var aggregationsLength = xml.childNodes[0].childNodes.length;
-                    var aggregations = [];
-                    for (var i:number = 0; i < aggregationsLength; i++) {
-			var aggregation = {
-                            field: xml.childNodes[0].childNodes[i].getAttribute("Name"),
-                            type: xml.childNodes[0].childNodes[i].getAttribute("Type")
-			};
-			aggregations.push(aggregation);
-                    }
-
-		}
-
-		// This compiles a CAML Query from the settings specified in the view
-		var camlQuery = new SP.CamlQuery();
-                
-                camlQuery.set_viewXml(view.get_listViewXml());
-		
-		var listItems = list.getItems(camlQuery);
-		context.load(listItems);
-		context.executeQueryAsync(
-                    function(sender, args): void {
-			// Iterate over all items and store them for every column in the result object
-			var liEnum = listItems.getEnumerator();
-			while (liEnum.moveNext()) {
-                            var item = liEnum.get_current();
-                            var row = [];
-                            for (var i:number = 0; i < fields.length; i++) {
-				row[i] = item.get_item(fields[i]);
-				if(row[i] === null)
-				{
-				    row[i] = SP_BLANK_STRING;
-				}
-                            }
-                            result.push(row);
-			}
-
-			//Draw the chart
-			var gData = new google.visualization.DataTable();
-			
-			if(groupByLength > 0)
-			{
-			    gData.addColumn('string', 'xAxis');
-			    var xCats = group2(result, 0);
-			    if(chart.wrapper.getType() === 'PieChart')
-			    {
-				gData.addColumn('number', 'yAxis');
-				
-				for(var cat in xCats)
-				{
-				    var aggData = group2(xCats[cat], 0);
-				    var arrData: number[] = [];
-				    for(var i: number = 0; i < aggData[cat].length; i++)
-				    {
-					arrData.push(aggData[cat][i][1]);
-				    }
-				    gData.addRow([cat, window[aggregations[0].type](arrData)]);
-				}	
-				
-			    }
-			    else
-			    {
-				
-				// get the first category
-				for(var cat in xCats) break;
-				var yCats = group2(xCats[cat], groupByLength - 1);
-				
-				for(var yCat in yCats)
-				{
-				    gData.addColumn('number', yCat);
-				}
-
-				for(var cat in xCats)
-				{
-				    var row: any[] = [cat];
-				    
-				    var group = group2(xCats[cat], 0);
-				    if(groupByLength > 1)
-				    {
-					var innerGroup = group2(group[cat], 1);
-					for(var innerCat in innerGroup)
-					{
-					    var data: any[] = innerGroup[innerCat];
-					    row.push(window[aggregations[0].type](getArrayFromSPData(data, groupByLength)));
-					}
-				    }
-				    else
-				    {
-					row.push(window[aggregations[0].type](getArrayFromSPData(group[cat], groupByLength)));
-				    }
-				    gData.addRow(row);
-				}
-			    }
-			}
-			chart.wrapper.setDataTable(gData);
-			chart.wrapper.draw();
-                    });
-
-            },
-
-            function(sender, args): void {
-		console.warn("Warning: " + args.get_message() + "\n" +
-			     "\'" + chart.viewTitle + "\'"
-			    );
-
-            }
-	);
-	
-    }
-});
-
-module.controller('funnelController', ['$scope', function($scope): void {
-    $scope.$on('init.ready', function(): void {
-	
-	// Define context and determine list and view
-	var context = new SP.ClientContext.get_current();
-	var list = context.get_web().get_lists().getByTitle(FUNNEL_LIST_TITLE);
-	var view = list.get_views().getByTitle(FUNNEL_VIEW_TITLE);
-	var fields = list.get_fields();
-	// Get all columns selected in View editor
-	var viewFields = view.get_viewFields();
-
-	context.load(viewFields);
-	context.load(view);
-	context.executeQueryAsync(
-            function(sender, args): void {
-		var result = [];
-		var fields = [];
-		// Iterate over all columns and store them in the result object
-		var e = viewFields.getEnumerator();
-
-		while (e.moveNext()) {
-                    fields.push(e.get_current());
-		}
-
-		// NOTE: We need to enclose the aggregations XML with our own
-		// root nodes to make it parsable XML
-		var xml;
-		var parser = new DOMParser();
-		var columnIndex = null;
-
-		if (view.get_viewQuery() !== "") {
-                    xml = parser.parseFromString("<root>" + view.get_viewQuery() + "</root>", "text/xml");
-                    var groupByLength = xml.childNodes[0].childNodes[0].childNodes.length;
-                    var groupBy = [];
-                    for (var i:number = 0; i < groupByLength; i++) {
-			groupBy.push(xml.childNodes[0].childNodes[0].childNodes[i].getAttribute("Name"));
-                    }
-		}
-
-		if (view.get_aggregations() !== "") {
-                    xml = parser.parseFromString("<root>" + view.get_aggregations() + "</root>", "text/xml");
-
-                    var aggregationsLength = xml.childNodes[0].childNodes.length;
-                    var aggregations = [];
-                    for (var i:number = 0; i < aggregationsLength; i++) {
-			var aggregation = {
-                            field: xml.childNodes[0].childNodes[i].getAttribute("Name"),
-                            type: xml.childNodes[0].childNodes[i].getAttribute("Type")
-			};
-			aggregations.push(aggregation);
-                    }
-
-		}
-
-		// This compiles a CAML Query from the settings specified in the view
-		var camlQuery = new SP.CamlQuery();
-
-		camlQuery.set_viewXml(view.get_listViewXml());
-
-		var listItems = list.getItems(camlQuery);
-		context.load(listItems);
-		context.executeQueryAsync(
-                    function(sender, args): void {
-			// Iterate over all items and store them for every column in the result object
-			var liEnum = listItems.getEnumerator();
-			while (liEnum.moveNext()) {
-                            var item = liEnum.get_current();
-                            var row = [];
-                            for (var i:number = 0; i < fields.length; i++) {
-				row[i] = item.get_item(fields[i]);
-                            }
-                            result.push(row);
-			}
-
-			if (groupByLength > 0) {
-                            var columnIndex = fields.indexOf(groupBy[0]);
-                            var group = group2(result, columnIndex);
-                            // check for second groupBy
-                            if (groupByLength > 1) {
-				for (var property in group) {
-                                    if (group.hasOwnProperty(property)) {
-					group[property] = group2(group[property], fields.indexOf(groupBy[1]));
-					for (var innerProperty in group[property]) {
-					    if (group[property].hasOwnProperty(innerProperty)) {
-						group[property][innerProperty] = COUNT(group[property][innerProperty]);
-					    }
-					}
-			            }
-				}
-                            }
-			}
-			
-			$scope.data = group;			
-                    });
-
-            },
-
-            function(sender, args): void {
-		console.warn("Warning: " + args.get_message() + "\n" +
-			     "\'" + FUNNEL_VIEW_TITLE + "\'"
-			    );
-
-            }
-	);
-	
-    });
+    $scope.stopUpdating = function (): void
+    {
+        $interval.cancel(liveUpdateTimer);
+        liveUpdateTimer = undefined;
+    };
+    
+    // Get initial state from cookie and start updating if necessary
+    $scope.cbLiveUpdate = (getCookie("liveUpdate") === 'true');
+    if($scope.cbLiveUpdate) $scope.startUpdating();
+    
 }]);
 
-//takes the element in `groupByLength` of each array in `data`
-function getArrayFromSPData(data:any[], groupByLength: number): any[]
-{
-    var arrData: number[] = [];
-    for(var i = 0; i < data.length; i++)
+// TODO: Optimize further: Only request registered fields
+module.service('SPData', function($http, $rootScope) {
+
+    this.registerList = function (listName: string) {
+        // Check if the list is already registered
+        for(let entry of registeredLists)
+        {
+            if(entry === listName) return;
+        }
+
+        // If the list is not found, add it and do the data request
+        registeredLists.push(listName);
+        this.getList(listName);
+    };
+    
+    this.getList = function (listName) {
+
+        // if not in list, add to list, do request
+        
+        let getListString = Settings.webURL + "/_api" + Settings.web + "/lists/getbytitle('"+listName+"')/items";
+
+        // define self as this to refer to 'this' in the inner scope
+        var self = this;
+        this.httpRequest(getListString, function(listData){
+
+            let getFieldString = Settings.webURL + "/_api" + Settings.web + "/lists/getbytitle('"+listName+"')/fields";
+
+            self.httpRequest(getFieldString, function(fieldData) {
+                $rootScope.$broadcast(listName+'.ready', listData.d.results, fieldData.d.results);
+            });
+        })
+    };
+
+    this.httpRequest = function(GETString: string, callbackFunction) {
+
+        let requestObject = {
+            type: "GET",
+            headers: {"Accept": "application/json; odata=verbose"},
+            url: GETString,
+        };
+        
+        $http(requestObject)
+            .success(function(data) {
+                // With the data succesfully returned, call our callback
+                callbackFunction(data);
+            })
+            .error(function(response) {
+                //TODO: Error can have different formats (odata and 'normal' errors?)
+                if(response["odata.error"])
+                {
+                    console.warn("REST API Call failed: "+response["odata.error"].message.value);
+                }
+                else
+                {
+                    console.warn("REST API Call failed: "+response.error.message.value);
+                }
+            });        
+    };
+
+    this.getUserById = function(userId: number)
     {
-	arrData.push(data[i][groupByLength]);
+        // string to get a user
+        let getUserString = Settings.webURL + "/_api/web/getuserbyid("+userId+")";
+        
+        this.httpRequest(getUserString, function(data) {
+            $rootScope.$broadcast('user.ready', data);
+        });
+
+        //TODO: implement
     }
-    return arrData;
+
+});
+
+function getFieldByTitle(title: string, fieldData: any): any
+{
+    for(let field of fieldData)
+    {
+        if(field.Title === title) return field;
+    }
+    return null;
+}
+
+// Get the type from the Field attributes and convert it to a Google Data TypeAsString
+function getFieldType(title: string, fieldData: any): string
+{
+    let spType = getFieldByTitle(title, fieldData).TypeAsString;
+    return getGoogleType(spType);
+}
+
+function getFieldEntries(fieldName: string, inputData: any[], selects: any[], filters: any[]): any[]
+{
+    let resultAfterSelect: any[] = [];
+    let resultAfterFilter: any[] = [];
+    let result: any[] = [];
+
+    if(selects.length !== 0)
+    {
+        for(let i:number = 0; i < inputData.length; ++i)
+        {
+            for(let select of selects)
+            {
+                if(isFilterMatch(inputData[i], select))
+                {
+                    resultAfterSelect.push(inputData[i]);
+                }
+            }
+        }
+    }
+    else
+    {
+        resultAfterSelect = inputData;
+    }
+    
+    if(filters.length !== 0)
+    {
+        for(let i:number = 0; i < resultAfterSelect.length; ++i)
+        {
+            for(let filter of filters)
+            {
+                if(isFilterMatch(resultAfterSelect[i], filter))
+                {
+                    resultAfterFilter.push(resultAfterSelect[i]);
+                }
+            }
+        }
+    }
+    else
+    {
+        resultAfterFilter = resultAfterSelect;
+    }
+
+    if(fieldName !== '')
+    {
+        for(let i:number = 0; i < resultAfterFilter.length; ++i)
+        {
+            result.push(resultAfterFilter[i][fieldName]);
+        }
+    }
+    else
+    {
+        result = resultAfterFilter;
+    }
+    
+    return result;
+}
+
+//TODO: 'Unit' test this!
+function isFilterMatch(entry: any, filter: any): boolean
+{
+    return entry[filter.field] == filter.value;
+}
+
+function processAttributesIntoArray(inputString: string): any[]
+{
+    var arr: any[] = [];
+    
+    // Filters are separated by a comma
+    let strings: string[] = inputString.split(";");
+    for(let attr of strings)
+    {
+        // An empty attr can happen if the users uses a trailing ';'
+        if(attr != "")
+        {
+            let item:any = {};
+            
+            // Trim off leading and trailing spaces and split on '='
+            let itemArr: string[] = attr.trim().split("=");
+            item.field = itemArr[0];
+            item.value = itemArr[1];
+            arr.push(item);
+        }
+    }
+    
+    return arr;
+}
+
+function getAggregationFunction(functionString: string): any
+{
+    let aggregationFunction: any;
+    switch(functionString)
+    {
+    case 'count':
+        {
+            aggregationFunction = getCount;
+        } break;
+    case 'sum':
+        {
+            aggregationFunction = getSum;
+        } break;
+    case 'average':
+        {
+            aggregationFunction = getAverage;
+        } break;
+    case 'min':
+        {
+            aggregationFunction =  getMin;
+        }
+    default:
+        {
+            //TODO: report who is reporting the error
+            console.warn('bs-value: Aggregation of type '+functionString+' not found.');
+        } break;
+    }
+
+    return aggregationFunction;
+}
+
+/**
+ * Map a SharePoint 'TypeAsString' to a Google Data Type
+ * Possible Google Chart Data Types:
+ * 
+ * - string
+ * - number
+ * - boolean
+ * - date
+ * - datetime
+ * - timeofday
+ */
+function getGoogleType(spType: string): string
+{
+    switch(spType)
+    {
+    case 'Integer':
+    case 'Counter':
+    case 'Number':
+    case 'MaxItems':
+    case 'ThreadIndex':
+        return 'number';
+    case 'Text':
+    case 'Note':
+    case 'Choice':
+    case 'Currency':
+    case 'URL':
+    case 'Guid':
+    case 'CrossProjectLink':
+    case 'Error':
+    case 'ModStat':
+    case 'ContentTypeId':
+    case 'WorkflowStatus':
+    case 'Geolocation':
+    case 'WorkflowEventType':
+        return 'string';
+    case 'DateTime':
+        return 'datetime';
+    case 'Boolean':
+        return 'boolean';
+    case 'User':
+        return "User";// TODO: implement
+/*
+    case 'Threading':
+    case 'Computed':
+    case 'Invalid':
+    case 'Lookup':
+    case 'Calculated': // could be any type
+    case 'MultiChoice': // could be any type
+    case 'GridChoice': // could be any type 
+    case 'File': // STUDY: check what a file type specifies, could be countable
+    case 'Attachments': // STUDY what's an attachment?
+    case 'Recurrence': // STUDY: maybe some type of DateTime?
+
+    case 'AllDayEvent': // STUDY: what is this?
+    case 'OutcomeChoice': // STUDY: what is this?
+*/
+    }
 }

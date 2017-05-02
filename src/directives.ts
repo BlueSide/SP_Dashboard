@@ -1,129 +1,132 @@
-module.directive( "bsTranslate", [function() {
-    return {
-	restrict: "A",
-	template: function(element)
-	{
-	    if(typeof(translationStrings[element[0].innerText]) !== 'undefined')
-	    {
-		return element[0].innerHTML.replace(element[0].innerText, translationStrings[element[0].innerText]);
-	    }
-	    else
-	    {
-		console.warn('Translation for "' +element[0].innerText+ '" not found.');
-		return element[0].innerHTML;
-	    }
-	    
-	}
-    };
-}]);
-
-module.directive( "bsValue", ['SPData', function(SPData) {
+module.directive("bsValue", ["SPData", function(SPData) {
     var _spData = SPData;
     return {
 	restrict: "E",
-	
-	scope: {
-	    // This is to isolate the scope
-	},
+        scope: {
+        },
+	link: function($scope, element, attributes) {
 
-	link: function($scope, element, attributes, SPData) {
-	    // Wait for SharePoint context to finish loading
-	    $scope.$on('init.ready', function() {
-						
-		_spData.getValue(attributes.list, attributes.view, attributes.aggregation).then(function (result) {
-		    switch(attributes.format)
-		    {
-		    case "currency":
-			$scope.value = bsFormatSPCurrency(result, false);
-			break;
-		    default:
-			$scope.value = result;
-			break;
-		    }
-		});
-	    });
-	},
+            // Register the list we need
+            _spData.registerList(attributes.list);
 
+            // NOTE: Selects work through an 'OR' condition
+            var selects: any[] = [];
+            if(attributes.select)
+            {
+                selects = processAttributesIntoArray(attributes.select);
+            }
+
+            // NOTE: Filters work through an 'AND' condition
+            var filters: any[] = [];            
+            if(attributes.filter)
+            {
+                filters = processAttributesIntoArray(attributes.filter);
+            }
+            
+            // Wait for the list to be downloaded and ready
+            $scope.$on(attributes.list+'.ready', function (msg, listData, fieldData) {
+
+                let arr:any[] = getFieldEntries(attributes.field, listData, selects, filters);
+                
+                let resultValue: number = 0;
+
+                let aggregationFunction = getAggregationFunction(attributes.aggregation);
+                resultValue = aggregationFunction(arr);
+                $scope.value = resultValue;
+
+            });
+        },
 	templateUrl: 'templates/value.html'
 	
     };
 }]);
 
-module.directive( "bsFunnelValue", [function() {
-    return {
-	restrict: "E",
-	scope: false,
-	template: function (element, attributes) {
-	    return '<a class="bs-funnel-value" href="'+attributes.url+'">{{data["'+attributes.group+'"]["'+attributes.innergroup+'"]}}</a>';
-	}
-    };
-}]);
-
-module.directive( "bsChart", ['SPData', '$rootScope', '$http', function(SPData, $rootScope, $http) {
+module.directive("bsChart", ["SPData", function(SPData) {
     var _spData = SPData;
     return {
-	restrict: "E",
-	scope: {
-	    // This is to isolate the scope
-	},
-	link: function($scope, element, attributes, SPData) {
-	    // Wait for SharePoint context to finish loading
-	    $scope.$on('init.ready', function() {
-		var chart = {
-		    listTitle: attributes.list,
-		    viewTitle: attributes.view,
-		    wrapper: null,
-		    chartOptions: null
-		};
+        restrict: "E",
+        link: function($scope, element, attributes) {
 
-		var templateOptions: any = window[attributes.options];
-		templateOptions.title = attributes.title;
+            // Wait until Google Charts is ready loading
+            $scope.$on('gc.ready', function (msg) {
+                // Register the list for loading
+                _spData.registerList(attributes.list);
+            });
 
-		chart.wrapper = new google.visualization.ChartWrapper({
-		    chartType: attributes.type,
-		    options: templateOptions,
-		    containerId: element.children()[0]
-		});
-		
-		_spData.getData(chart);
-		
-		var readyEvent = google.visualization.events.addListener(chart.wrapper, 'ready', onReady);
-		_spData.registerChart(chart);
+            // Wait until the list is loaded and parsed
+            $scope.$on(attributes.list+'.ready', function (msg, listData, fieldData) {
+                let groupXAxis: boolean = element[0].hasAttribute('groupxaxis');
+                console.info("Group X-axis: "+groupXAxis);
+                // Initialize Google Charts wrapper
+                let wrapper = new google.visualization.ChartWrapper({
+                    chartType: attributes.type,
+                    containerId: element.children()[0]
+                });
 
-		/*
-		 * NOTE
-		 * The 'ready' event only gets fired when a chart is drawn without errors.
-		 * In the event one of the charts throws an error, Live Update won't start,
-		 * because there are more charts registered than there are ready
-		 */
-		function onReady() {
-		    google.visualization.events.addListener(chart.wrapper.getChart(), 'onmouseover', onChartMouseOver);
-		    google.visualization.events.addListener(chart.wrapper.getChart(), 'onmouseout', onChartMouseOut);
-		    google.visualization.events.addListener(chart.wrapper.getChart(), 'select', onChartClicked);
+                // TODO: Get options from a template file
+                let options: any = {
+                    title: "testTitle",
+                };
 
-		    _spData.setChartReady();
+                // Initialize Google DataTable
+                let gData = new google.visualization.DataTable();
+                
+                let aggregateFunction = getAggregationFunction(attributes.aggregation);
+                let arr: any[] = [];
 
-		    google.visualization.events.removeListener(readyEvent);
-		}
+                let fieldTypeX = getFieldType(attributes.xaxis, fieldData);
+                let fieldTypeY = getFieldType(attributes.yaxis, fieldData);
 
-		function onChartClicked() {
-		    window.location.href = attributes.url;
-		}
+                if(fieldTypeX == "User")
+                {
+                    // Get Username by id
+                    fieldTypeX = 'string';
+                    _spData.getUserById(20);
+                    $scope.$on('user.ready', function (msg, userData) {
+                        console.log(userData);
+                    });
+                }
+                
+                gData.addColumn(fieldTypeX, attributes.xaxis);
+                gData.addColumn(fieldTypeY, attributes.yaxis);
 
-		/*
-		  NOTE: 
-		  We stop updating data to prevent chart tooltips to disappear
-		  on chart draw
-		 */			
-		function onChartMouseOver() {
-		    _spData.stopLiveUpdate();
-		}
+                // Group data
+                let groups: string[] = [];
+                if(groupXAxis)
+                {
+                    // TODO: Group by x-axis
+                    let entries: any = getFieldEntries(attributes.xaxis, listData, [], []);
+                    // Iterate over entries to get all possible groups
+                    for(let entry of entries)
+                    {
+                        // Check if groups already contains the entry
+                        if(!(groups.indexOf(entry) > -1))
+                        {
+                            groups.push(entry);
+                        }
+                    }
+                }
 
-		function onChartMouseOut() {
-		    _spData.startLiveUpdate();
-		}
-	    });
-	},
-	templateUrl: 'templates/chart.html'
+                // TODO: handle no grouping
+                for(let group of groups)
+                {
+                    let select = [{field: attributes.xaxis, value: group}];
+                    arr.push(getFieldEntries(attributes.yaxis, listData, select, []));
+                }
+                
+                // Add each array entry to the Google DataTable
+                for(var i = 0; i < arr.length; ++i)
+                {
+                    gData.addRow([groups[i], aggregateFunction(arr[i])]);
+                }
+
+                // Update the chart with new data and redraw it
+                wrapper.setDataTable(gData);
+                wrapper.draw();            
+            });
+
+        },
+        templateUrl: 'templates/chart.html'
     };
 }]);
+

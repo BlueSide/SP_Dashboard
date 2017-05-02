@@ -43,6 +43,17 @@ function bsFormatSPCurrency(input: number, prefixCurrencySymbol: boolean): strin
     }
 }
 
+
+function formatFloat(input: number)
+{
+    return toFixed(input, 2);
+}
+
+function toFixed(value, precision) {
+    var power = Math.pow(10, precision || 0);
+    return String(Math.round(value * power) / power);
+}
+
 function setCookie(cname: string, cvalue:string , exdays: number): void
 {
     var date:Date = new Date();
