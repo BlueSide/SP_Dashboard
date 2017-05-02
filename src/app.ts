@@ -73,6 +73,7 @@ module.controller('liveUpdateController', ['$scope', '$interval', 'SPData', func
 // TODO: Optimize further: Only request registered fields
 module.service('SPData', function($http, $rootScope) {
 
+    // register list for loading
     this.registerList = function (listName: string) {
         // Check if the list is already registered
         for(let entry of registeredLists)
@@ -84,7 +85,8 @@ module.service('SPData', function($http, $rootScope) {
         registeredLists.push(listName);
         this.getList(listName);
     };
-    
+
+    // Load the raw list data
     this.getList = function (listName) {
 
         // if not in list, add to list, do request
@@ -103,6 +105,7 @@ module.service('SPData', function($http, $rootScope) {
         })
     };
 
+    // $http wrapper
     this.httpRequest = function(GETString: string, callbackFunction) {
 
         let requestObject = {
@@ -159,47 +162,16 @@ function getFieldType(title: string, fieldData: any): string
     return getGoogleType(spType);
 }
 
+// return all items from a certain field after selecting and filtering
 function getFieldEntries(fieldName: string, inputData: any[], selects: any[], filters: any[]): any[]
 {
     let resultAfterSelect: any[] = [];
     let resultAfterFilter: any[] = [];
     let result: any[] = [];
 
-    if(selects.length !== 0)
-    {
-        for(let i:number = 0; i < inputData.length; ++i)
-        {
-            for(let select of selects)
-            {
-                if(isFilterMatch(inputData[i], select))
-                {
-                    resultAfterSelect.push(inputData[i]);
-                }
-            }
-        }
-    }
-    else
-    {
-        resultAfterSelect = inputData;
-    }
+    resultAfterSelect = processEntries(inputData, selects);
+    resultAfterFilter = processEntries(resultAfterSelect, filters);
     
-    if(filters.length !== 0)
-    {
-        for(let i:number = 0; i < resultAfterSelect.length; ++i)
-        {
-            for(let filter of filters)
-            {
-                if(isFilterMatch(resultAfterSelect[i], filter))
-                {
-                    resultAfterFilter.push(resultAfterSelect[i]);
-                }
-            }
-        }
-    }
-    else
-    {
-        resultAfterFilter = resultAfterSelect;
-    }
 
     if(fieldName !== '')
     {
@@ -216,7 +188,32 @@ function getFieldEntries(fieldName: string, inputData: any[], selects: any[], fi
     return result;
 }
 
-//TODO: 'Unit' test this!
+// return a filtered subset from the inputted list
+function processEntries(input: any[], selects: any[]): any[]
+{
+    let result: any[] = [];
+
+    if(selects.length !== 0)
+    {
+        for(let i:number = 0; i < input.length; ++i)
+        {
+            for(let select of selects)
+            {
+                if(isFilterMatch(input[i], select))
+                {
+                    result.push(input[i]);
+                }
+            }
+        }
+    }
+    else
+    {
+        result = input;
+    }
+
+    return result;
+}
+
 function isFilterMatch(entry: any, filter: any): boolean
 {
     return entry[filter.field] == filter.value;
@@ -237,8 +234,8 @@ function processAttributesIntoArray(inputString: string): any[]
             
             // Trim off leading and trailing spaces and split on '='
             let itemArr: string[] = attr.trim().split("=");
-            item.field = itemArr[0];
-            item.value = itemArr[1];
+            item.field = itemArr[0].trim();
+            item.value = itemArr[1].trim();
             arr.push(item);
         }
     }
@@ -246,6 +243,7 @@ function processAttributesIntoArray(inputString: string): any[]
     return arr;
 }
 
+// Map string from HTML Attribute to function pointer
 function getAggregationFunction(functionString: string): any
 {
     let aggregationFunction: any;
@@ -265,7 +263,7 @@ function getAggregationFunction(functionString: string): any
         } break;
     case 'min':
         {
-            aggregationFunction =  getMin;
+            aggregationFunction = getMin;
         }
     default:
         {
