@@ -2,15 +2,12 @@ var testfilter = {
     filters: [
         {
             filters: [
-                "TRLLevel = 1",
-                "TRLLevel = 3"
+                "Sector = Agri & Food",
+                "Sector = Business Services"
             ],
-            operator: "OR"
+            operator: "AND"  
         },
-        {
-            filters:["Sector = Tech"],
-            operator: "OR"
-        }
+        "Phase = 4. 2nd level support"
     ],
-    operator: "AND"
+    operator: "OR"
 };

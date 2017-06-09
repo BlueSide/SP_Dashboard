@@ -274,45 +274,58 @@ function filterItems(filterObj: any, inputData: any[], fieldData: any[]): any[]
     
     if(filterObj.operator === 'AND')
     {
-        for(let filter of filterObj.filters)
+        
+        for(let item of inputData)
         {
-            if(typeof filter === 'string')
+            let isMatch: boolean = true;
+            for(let filter of filterObj.filters)
             {
-                let filterRule =  processFilter(filter);
+                let filterRule = processFilter(filter);
                 let filterFieldType = getFieldType(filterRule.field, fieldData);
                 
                 // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
                 if(filterFieldType === 'User') filterRule.field += 'Id';
-                for(let item of inputData)
+                
+                if(isFilterMatch(item, filterRule, filterFieldType) === false)
                 {
-                    if(isFilterMatch(item, filterRule, filterFieldType))
-                    {
-                        items.push(item);
-                    }
+                    isMatch = false;
+                    // If one of the filters has a mismatch,
+                    // we don't have to check further.
+                    break;
+                }
+            }
+            
+            if(isMatch)
+            {
+                items.push(item);
+            }
+        }
+    }
+    else if(filterObj.operator === 'OR')
+    {
+        for(let item of inputData)
+        {
+            for(let filter of filterObj.filters)
+            {
+                let filterRule = processFilter(filter);
+                let filterFieldType = getFieldType(filterRule.field, fieldData);
+                
+                // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
+                if(filterFieldType === 'User') filterRule.field += 'Id';
+                
+                if(isFilterMatch(item, filterRule, filterFieldType))
+                {
+                    items.push(item);
+                    // if one of the filters has a match
+                    // we don't have to check further
+                    break;
                 }
             }
         }
     }
     else
     {
-        for(let filter of filterObj.filters)
-        {
-            if(typeof filter === 'string')
-            {
-                let filterRule =  processFilter(filter);
-                let filterFieldType = getFieldType(filterRule.field, fieldData);
-                
-                // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
-                if(filterFieldType === 'User') filterRule.field += 'Id';
-                for(let item of inputData)
-                {
-                    if(isFilterMatch(item, filterRule, filterFieldType))
-                    {
-                        items.push(item);
-                    }
-                }
-            }
-        }
+        console.warn("Invalid filter operator:", filterObj.operator);
     }
     /*
     if(typeof filter === 'string')
