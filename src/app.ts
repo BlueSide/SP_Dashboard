@@ -1,112 +1,172 @@
 
 // Declare Angular, and create the Dashboard module
 declare var angular: any;
+declare var google: any;
 var module = angular.module('bsDashboard', []);
 
 var Settings: any = {
     webURL: "https://bluesidenl.sharepoint.com",
     web: "",
     updateInterval: 1000,
+    modifiedField: 'Modified', // SharePoint field containing the timestamp it had been modified last
+    updatedDataFadeOutTime: 20000
 }
 
-// All lists needing to be updated
-var registeredLists:string[] = [];
+var LocaleCodes = {
+    1031: "de-DE",
+    1033: "en-US",
+    2057: "en-UK",
+    2067: "nl-BE",
+    1043: "nl-NL",
+};
+
+interface filter {
+    field: string;
+    value: string;
+    operator: string;
+}
 
 // Initialisation controller. Resides in <html>
-module.controller('initController', ["$scope", function($scope): void {
+module.controller('initController', ['$scope', '$q', '$interval', 'SPData', function($scope, $q, $interval, SPData): void {
     console.log("initController");
-    // Initialize Google Charts
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(function() {
-        $scope.$broadcast('gc.ready');
-    });
-    
-}]);
+    SPData.getSiteUsers();
 
-// Controls the Live Update button
-module.controller('liveUpdateController', ['$scope', '$interval', 'SPData', function($scope, $interval, SPData): void {
+    // Reference to the Live Update $interval timer
+    var liveUpdate;
 
-    //NOTE: We need to initialize last, so the $scope knows about it's functions
-    var liveUpdateTimer: any;
-
-    $scope.startUpdating = function (): void
+    $scope.onLiveUpdateClick = function (): void
     {
-        liveUpdateTimer = $interval($scope.update, Settings.updateInterval);
-    };
-    
-    // Switch state on click and set the new state in cookie
-    $scope.onLiveUpdateClick = function(): void
-    {
-        
-        setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
-
         if($scope.cbLiveUpdate)
         {
-            $scope.startUpdating();
+            $scope.startLiveUpdate();
         }
         else
         {
-            $scope.stopUpdating();
+            $scope.stopLiveUpdate();
         }
-    };
+    }
 
-    $scope.update = function (): void
+    $scope.startLiveUpdate = function (): void
     {
-        for(let entry of registeredLists)
+        setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
+        
+        if(angular.isDefined(liveUpdate)) return;
+        
+        liveUpdate = $interval(function () {
+            for(let listName in SPData.registeredLists)
+            {
+                SPData.getChanged(listName).then(function (isListChanged):void {
+                    if(isListChanged)
+                    {
+                        var deferred = $q.defer();
+                        SPData.getList(listName, deferred);
+                        $scope.$broadcast(listName+'.ready', deferred.promise);
+                    }
+                });
+            }
+        }, Settings.updateInterval);
+    }
+
+    $scope.stopLiveUpdate = function (): void
+    {
+        if(angular.isDefined(liveUpdate))
         {
-            SPData.getList(entry);
+            $interval.cancel(liveUpdate);
+            liveUpdate = undefined;
+            setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
         }
-    };
+    }
 
-    $scope.stopUpdating = function (): void
+    //NOTE: Initialisation code
+    $scope.cbLiveUpdate = (getCookie("liveUpdate") === 'true')
+
+    if(getCookie("liveUpdate") === 'true')
     {
-        $interval.cancel(liveUpdateTimer);
-        liveUpdateTimer = undefined;
-    };
-    
-    // Get initial state from cookie and start updating if necessary
-    $scope.cbLiveUpdate = (getCookie("liveUpdate") === 'true');
-    if($scope.cbLiveUpdate) $scope.startUpdating();
+        $scope.startLiveUpdate();
+    }
+    else
+    {
+        $scope.stopLiveUpdate();        
+    }
     
 }]);
 
 // TODO: Optimize further: Only request registered fields
-module.service('SPData', function($http, $rootScope) {
+module.service('SPData', function($http, $q) {
+    
+    // Gets filled with all user data
+    var siteUsers:any[] =  [];
 
+    this.registeredLists = [];
+    var self = this;
     // register list for loading
-    this.registerList = function (listName: string) {
-        // Check if the list is already registered
-        for(let entry of registeredLists)
+    this.registerList = function (listName: string): any
+    {
+        // Check if the list is already requested
+        if(typeof this.registeredLists[listName] == 'undefined')
         {
-            if(entry === listName) return;
+            var deferred = $q.defer();
+            this.registeredLists[listName] = {deferred: deferred, changes: []};
+            this.getList(listName, deferred);
+            return deferred.promise;
         }
-
-        // If the list is not found, add it and do the data request
-        registeredLists.push(listName);
-        this.getList(listName);
+        // If the list is already requested, return its promise
+        return this.registeredLists[listName].deferred.promise;
     };
 
-    // Load the raw list data
-    this.getList = function (listName) {
+    this.getChanged = function(listName): any {
 
+        let deferred = $q.defer();
+        
+        let getListString = Settings.webURL + "/_api" + Settings.web + "/lists/getbytitle('"+listName+"')/items?$select="+Settings.modifiedField;
+        this.httpGETRequest(getListString).then(function (result) {
+            // First check if the length of the list is different
+            if(self.registeredLists[listName].changes.length !== result.data.d.results.length)
+            {
+                deferred.resolve(true);
+            }
+            else // If not, check each 'Modified' timestamp individually
+            {
+                for(let entryIndex in result.data.d.results)
+                {
+                    if(self.registeredLists[listName].changes[entryIndex] !==
+                       result.data.d.results[entryIndex][Settings.modifiedField])
+                    {
+                        deferred.resolve(true);
+                    }
+                    
+                }
+            }
+            
+            // Clear the array first
+            self.registeredLists[listName].changes.length = 0;
+            
+            // If not, check the Modified timestamps to detect changes
+            for(let entryIndex in result.data.d.results)
+            {
+                self.registeredLists[listName].changes.push(result.data.d.results[entryIndex].Modified);
+            }
+        })
+        return deferred.promise;
+    };
+    
+    // Load the raw list data
+    this.getList = function (listName, deferred) {
         // if not in list, add to list, do request
         
         let getListString = Settings.webURL + "/_api" + Settings.web + "/lists/getbytitle('"+listName+"')/items";
+        let getFieldString = Settings.webURL + "/_api" + Settings.web + "/lists/getbytitle('"+listName+"')/fields";
 
-        // define self as this to refer to 'this' in the inner scope
-        var self = this;
-        this.httpRequest(getListString, function(listData){
-
-            let getFieldString = Settings.webURL + "/_api" + Settings.web + "/lists/getbytitle('"+listName+"')/fields";
-
-            self.httpRequest(getFieldString, function(fieldData) {
-                $rootScope.$broadcast(listName+'.ready', listData.d.results, fieldData.d.results);
-            });
+        $q.all({
+            listData: this.httpGETRequest(getListString),
+            fieldData: this.httpGETRequest(getFieldString),
+        }).then(function (result) {
+            deferred.resolve(result);
         })
     };
-
+    
     // $http wrapper
-    this.httpRequest = function(GETString: string, callbackFunction) {
+    this.httpGETRequest = function(GETString: string) {
 
         let requestObject = {
             type: "GET",
@@ -114,36 +174,66 @@ module.service('SPData', function($http, $rootScope) {
             url: GETString,
         };
         
-        $http(requestObject)
-            .success(function(data) {
-                // With the data succesfully returned, call our callback
-                callbackFunction(data);
-            })
-            .error(function(response) {
-                //TODO: Error can have different formats (odata and 'normal' errors?)
-                if(response["odata.error"])
-                {
-                    console.warn("REST API Call failed: "+response["odata.error"].message.value);
-                }
-                else
-                {
-                    console.warn("REST API Call failed: "+response.error.message.value);
-                }
-            });        
+        return $http(requestObject);
     };
 
-    this.getUserById = function(userId: number)
+    this.getSiteUsers = function()
     {
+        //TODO: Unhardcode sitegroup '7'
         // string to get a user
-        let getUserString = Settings.webURL + "/_api/web/getuserbyid("+userId+")";
+        let getUserString = Settings.webURL + "/_api/web/sitegroups(7)/users";
         
-        this.httpRequest(getUserString, function(data) {
-            $rootScope.$broadcast('user.ready', data);
+        this.httpGETRequest(getUserString).then(function(result) {
+            siteUsers = result.data.d.results;
         });
-
-        //TODO: implement
+        
     }
 
+    this.getUserById = function(id: number): string
+    {
+        // TODO: should this always be unassigned?
+        if(!id) return "Unassigned";
+
+        // Check if data is ready, otherwise give a warning
+        if(siteUsers.length !== 0)
+        {
+            for(let user of siteUsers)
+            {
+                if(id === user.Id) return user.Title;
+            }
+        }
+        else
+        {
+            console.warn("User data is not yet loaded!");
+        }
+
+        return null;
+    }
+});
+
+module.service('GCLoader', function($q) {
+
+    //TODO: Move to GC service
+    // Array with promises to Google Charts
+    var registeredChartUsers: any[] = [];
+
+    // Initialize Google Charts
+    google.charts.load('current', {'packages':['corechart']});
+    google.charts.setOnLoadCallback(function() {
+        for(let deferred of registeredChartUsers)
+        {
+            deferred.resolve('gc loaded');
+        }
+    });
+    
+    
+    this.register = function(): any
+    {
+        var deferred = $q.defer();
+        registeredChartUsers.push(deferred);
+        // TODO: Return a Wrapper object?
+        return deferred.promise;
+    }
 });
 
 function getFieldByTitle(title: string, fieldData: any): any
@@ -152,96 +242,246 @@ function getFieldByTitle(title: string, fieldData: any): any
     {
         if(field.Title === title) return field;
     }
+
+    console.warn("Could not find field '" + title + "'");
     return null;
 }
 
 // Get the type from the Field attributes and convert it to a Google Data TypeAsString
 function getFieldType(title: string, fieldData: any): string
 {
-    if(!title) return 'string';
-    let spType = getFieldByTitle(title, fieldData).TypeAsString;
-    return getGoogleType(spType);
-}
-
-// return all items from a certain field after selecting and filtering
-function getFieldEntries(fieldName: string, inputData: any[], selects: any[], filters: any[]): any[]
-{
-    let resultAfterSelect: any[] = [];
-    let resultAfterFilter: any[] = [];
-    let result: any[] = [];
-
-    resultAfterSelect = processEntries(inputData, selects);
-    resultAfterFilter = processEntries(resultAfterSelect, filters);
-    
-
-    if(fieldName !== '')
+    // NOTE: We use "Text" as the default field type
+    // An empty title can happen if the user only wants to
+    // count all items matching a certain filter.
+    if(!title)
     {
-        for(let i:number = 0; i < resultAfterFilter.length; ++i)
-        {
-            result.push(resultAfterFilter[i][fieldName]);
-        }
-    }
-    else
-    {
-        result = resultAfterFilter;
+        return "Text";
     }
     
-    return result;
+    let fieldType = getFieldByTitle(title, fieldData);
+    if(fieldType)
+    {
+        return fieldType.TypeAsString;
+    }
+    
+    return null;
 }
 
-// return a filtered subset from the inputted list
-function processEntries(input: any[], selects: any[]): any[]
+function filterItems(filterObj: any, inputData: any[], fieldData: any[]): any[]
 {
-    let result: any[] = [];
 
-    if(selects.length !== 0)
+    let items: any[] = [];
+    
+    if(filterObj.operator === 'AND')
     {
-        for(let i:number = 0; i < input.length; ++i)
+        for(let filter of filterObj.filters)
         {
-            for(let select of selects)
+            if(typeof filter === 'string')
             {
-                if(isFilterMatch(input[i], select))
+                let filterRule =  processFilter(filter);
+                let filterFieldType = getFieldType(filterRule.field, fieldData);
+                
+                // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
+                if(filterFieldType === 'User') filterRule.field += 'Id';
+                for(let item of inputData)
                 {
-                    result.push(input[i]);
+                    if(isFilterMatch(item, filterRule, filterFieldType))
+                    {
+                        items.push(item);
+                    }
                 }
             }
         }
     }
     else
     {
-        result = input;
-    }
-
-    return result;
-}
-
-function isFilterMatch(entry: any, filter: any): boolean
-{
-    return entry[filter.field] == filter.value;
-}
-
-function processAttributesIntoArray(inputString: string): any[]
-{
-    var arr: any[] = [];
-    
-    // Filters are separated by a comma
-    let strings: string[] = inputString.split(";");
-    for(let attr of strings)
-    {
-        // An empty attr can happen if the users uses a trailing ';'
-        if(attr != "")
+        for(let filter of filterObj.filters)
         {
-            let item:any = {};
-            
-            // Trim off leading and trailing spaces and split on '='
-            let itemArr: string[] = attr.trim().split("=");
-            item.field = itemArr[0].trim();
-            item.value = itemArr[1].trim();
-            arr.push(item);
+            if(typeof filter === 'string')
+            {
+                let filterRule =  processFilter(filter);
+                let filterFieldType = getFieldType(filterRule.field, fieldData);
+                
+                // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
+                if(filterFieldType === 'User') filterRule.field += 'Id';
+                for(let item of inputData)
+                {
+                    if(isFilterMatch(item, filterRule, filterFieldType))
+                    {
+                        items.push(item);
+                    }
+                }
+            }
+        }
+    }
+    /*
+    if(typeof filter === 'string')
+    {
+        
+        let filterObj =  processFilter(filter);
+        let filterFieldType = getFieldType(filterObj.field, fieldData);
+        
+        // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
+        if(filterFieldType === 'User') filterObj.field += 'Id';
+        for(let item of inputData)
+        {
+            if(isFilterMatch(item, filterObj, filterFieldType))
+            {
+                items.push(item);
+            }
+        }
+    }
+*/
+    return items;
+}
+/*
+
+    let items: any[] = [];
+    for(let filterString of filterObj.filters)
+    {
+        let filter: filter = processFilter(filterString);
+        let filterFieldType = getFieldType(filter.field, fieldData);
+        
+        // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
+        if(filterFieldType === 'User') filter.field += 'Id';
+
+        for(let entry of inputData)
+        {
+            if(isFilterMatch(entry, filter, filterFieldType))
+            {
+                items.push(entry);
+            }
+        }
+    }
+    return items;
+*/
+// return all items from a certain field after selecting and filtering
+function getFieldEntries(fieldName: string, inputData: any[], fieldData: any[], filterObj: any = null): any[]
+{
+    let fieldType = getFieldType(fieldName, fieldData);
+    let items: any[] = [];
+
+    
+    if(filterObj !== null)
+    {
+        items = filterItems(filterObj, inputData, fieldData);
+    }
+    else
+    {
+        // If no filter is defined, let all items pass
+        items = inputData;
+    }
+    
+    let result: any = [];
+    
+    // Return just the field
+    for(let item of items)
+    {
+        if(fieldType === 'User')
+        {
+            result.push(item[fieldName + "Id"]);
+        }
+        else
+        {
+            result.push(item[fieldName]);
         }
     }
     
-    return arr;
+    return result;
+}
+
+function isFilterMatch(entry: any, filter: filter, fieldType: string): boolean
+{
+    let values: any[] = [];
+    if(fieldType !== 'MultiChoice')
+    {
+        values.push(entry[filter.field]);
+    }
+    else
+    {
+        values = entry[filter.field].results;
+    }
+
+    let isMatch: boolean = false;
+    for(let value of values)
+    {
+        switch(filter.operator)
+        {
+        case '=': // is equal to
+            isMatch = value == filter.value;
+            break;
+        case '!=': // is not equal to
+            isMatch = value !== filter.value;
+            break;
+        case '~': // contains
+            isMatch = value.indexOf(filter.value) !== -1;
+            break;
+        case '!~': // does not contain
+            isMatch = value.indexOf(filter.value) === -1;
+            break;
+        case '>': // greater than
+            isMatch = value > filter.value;
+            break;
+        case '<': // less than
+            isMatch = value < filter.value;
+            break;
+        case '>=': // greater than or equal to
+            isMatch = value >= filter.value;
+            break;
+        case '<=': // less than or equal to
+            isMatch = value <= filter.value;
+            break;
+        default:
+            console.warn(filter.operator, 'is not a valid filter operator');
+            isMatch = false;
+            break;
+        }
+
+        // NOTE: Only one of the values had to me true
+        // to be a match, so on true we return immediately
+        if(isMatch)
+        {
+            return true;
+        }
+    }
+    // Return false on error
+    return isMatch;
+}
+
+var regexpOperator = /(=|<|>|!=|<=|>=|~|!~)/;
+
+function processFilter(filterString: string): filter
+{
+    let filterOperator = regexpOperator.exec(filterString)[0];
+    let itemArr: string[] = filterString.trim().split(filterOperator);
+    let returnValue = itemArr[1].trim();
+
+    // NOTE: To work around type checking problems in the future we
+    // assign 'null' specifically to null
+    // TODO: Handle strict typechecking
+    if(returnValue == 'null')
+        returnValue = null;
+
+    return {
+        field: itemArr[0].trim(),
+        value: returnValue,
+        operator: filterOperator
+    };
+}
+
+function filterStringToObject(inputString: string, operator: string = "AND"): any
+{
+    // Filters are separated by a comma
+    let strings: string[] = inputString.split(';');
+    let trimmedStrings: string[] = [];
+    for(let str of strings)
+    {
+        trimmedStrings.push(str.trim());
+    }
+    return {
+        filters: trimmedStrings,
+        operator: operator
+    }
 }
 
 // Map string from HTML Attribute to function pointer
@@ -289,6 +529,7 @@ function getAggregationFunction(functionString: string): any
  */
 function getGoogleType(spType: string): string
 {
+    // TODO: Use FieldTypeKind, for potentially faster mapping
     switch(spType)
     {
     case 'Integer':
@@ -316,38 +557,58 @@ function getGoogleType(spType: string): string
     case 'Boolean':
         return 'boolean';
     case 'User':
-        return "string";// TODO: implement
-/*
-    case 'Threading':
-    case 'Computed':
-    case 'Invalid':
-    case 'Lookup':
-    case 'Calculated': // could be any type
-    case 'MultiChoice': // could be any type
-    case 'GridChoice': // could be any type 
-    case 'File': // STUDY: check what a file type specifies, could be countable
-    case 'Attachments': // STUDY what's an attachment?
-    case 'Recurrence': // STUDY: maybe some type of DateTime?
+        return "User";
+    case 'MultiChoice': // STUDY: could be any type
+        return "MultiChoice";
 
-    case 'AllDayEvent': // STUDY: what is this?
-    case 'OutcomeChoice': // STUDY: what is this?
-*/
+    default:
+        console.warn("Could not map SharePoint type '"+spType+"' to a Google Charts datatype");
+        /*      
+                case 'Invalid':
+                case 'Threading':
+                case 'Computed':
+                case 'Lookup': // waarde uit een andere lijst
+                case 'Calculated': // could be any type
+                case 'GridChoice': // could be any type 
+                case 'File': // STUDY: check what a file type specifies, could be countable
+                case 'Attachments': // STUDY what's an attachment?
+                case 'Recurrence': // STUDY: maybe some type of DateTime?
+
+                case 'AllDayEvent': // STUDY: what is this?
+                case 'OutcomeChoice': // STUDY: what is this?
+        */        
     }
 }
 
-function group(field: string, listData: any[])
+function group(field: string, listData: any[], fieldData: any[]): string[]
 {
     let groups: string[] = [];
-    let entries: any = getFieldEntries(field, listData, [], []);
+    let fieldType = getFieldType(field, fieldData);
+
+    let entries: any = getFieldEntries(field, listData, fieldData);
+
     // Iterate over entries to get all possible groups
     for(let entry of entries)
     {
-        // Check if groups already contains the entry
-        if(!(groups.indexOf(entry) > -1))
+        if(fieldType === 'MultiChoice')
         {
-            groups.push(entry);
+            for(let choice of entry.results)
+            {
+                // Check if groups already contains the entry
+                if(!(groups.indexOf(choice) > -1))
+                {
+                    groups.push(choice);
+                }
+            }
+        }
+        else
+        {
+            // Check if groups already contains the entry
+            if(!(groups.indexOf(entry) > -1))
+            {
+                groups.push(entry);
+            }
         }
     }
-
     return groups;
 }

@@ -1,0 +1,8 @@
+<table class="table table-hover table-striped">
+    <tr>
+	<th ng-repeat="column in fields">{{column}}</th>
+    </tr>
+    <tr ng-repeat="item in items">
+        <td ng-repeat="column in fields">{{item[$index]}}</td>
+    </tr>
+</table>

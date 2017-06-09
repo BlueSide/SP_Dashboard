@@ -3,7 +3,7 @@ var column_chart_FTE = {
     chartArea: {'width': '60%', 'height': '70%'},
     legend: 'none',
     animation: {
-	startup: true,
+	startup: false,
 	duration: 1000,
 	easing: 'out'
     }
@@ -56,4 +56,16 @@ var stepped_area_chart_small = {
     legend: {
 	position: 'right'
     }
+};
+
+var intervals = {
+    curveType: 'function',
+    lineWidth: 4,
+    intervals: { 'style':'line'}
+};
+
+var trendline = {
+    hAxis: {title: 'Diameter'},
+    vAxis: {title: 'Age'},
+    trendlines: { 0: {} }
 };

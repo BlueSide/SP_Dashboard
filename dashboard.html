@@ -20,16 +20,21 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 
 	<!-- SharePoint context -->
-	<script type="text/javascript">RegisterSod("sp.js", "\u002f_layouts\u002f15\u002fsp.js?rev=IT28aftC77u0G2upAeydwg\u00253D\u00253D");RegisterSodDep("sp.js", "sp.runtime.js");RegisterSodDep("sp.js", "sp.ui.dialog.js");RegisterSodDep("sp.js", "sp.res.resx");</script>
+	<script type="text/javascript">
+         RegisterSod("sp.js", "\u002f_layouts\u002f15\u002fsp.js?rev=IT28aftC77u0G2upAeydwg\u00253D\u00253D");
+         RegisterSodDep("sp.js", "sp.runtime.js");
+         RegisterSodDep("sp.js", "sp.ui.dialog.js");
+         RegisterSodDep("sp.js", "sp.res.resx");
+        </script>
 
 	<!-- Stylesheets -->
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
 	
-	<script src="src/settings.js"></script>
 	<script src="src/app.js"></script>
 	<script src="src/bsToolbox.js"></script>
 	<script src="src/directives.js"></script>
 	<script src="src/aggregations.js"></script>
+	<script src="templates/filters.js"></script>
 	<script src="templates/templates.js"></script>
 	
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -50,14 +55,31 @@
 			</li>
 		    </ul>
 		    <ul class="nav navbar-nav navbar-right">
-			<div class="slideThree" ng-controller="liveUpdateController">
+			<div class="live-update-slider">
 			    <div class="bs-check-label" bs-translate>Live update:</div>
-			    <input type="checkbox" value="None" id="slideThree" name="check" ng-model="cbLiveUpdate" ng-click="onLiveUpdateClick()"/>
-			    <label for="slideThree"></label>
+			    <input type="checkbox" value="None" id="live-update-slider" name="check" ng-model="cbLiveUpdate" ng-click="onLiveUpdateClick()"/>
+			    <label for="live-update-slider"></label>
 			</div>
 		    </ul>
 		</div>
 	    </nav>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+		        <div class="panel-body">
+			    <div class="panel-heading" bs-translate>Table test</div>
+                            <div class="table-responsive text-left">
+                                <bs-table
+                                     list="Cases"
+                                     fields="Phase; Sector; TRLLevel; Employee; StartDate; HonoredFinances"
+                                     rowlimit="10"
+                                ></bs-table>
+                            </div>
+		        </div>
+		    </div>
+                </div>
+            </div>
 	    
 	    <div class="row">
 		<div class="col-md-2 col-sm-6">
@@ -68,7 +90,7 @@
                                 <bs-value
                                     list="Cases"
                                     field="Phase"
-                                    select="Phase=4. 2nd level support"
+                                    filter="f:testfilter"
                                     aggregation="count">
                                 </bs-value>
                             </h2>
@@ -84,7 +106,8 @@
                                 <bs-value
                                     list="Cases"
                                     field="HonoredFinances"
-                                    aggregation="average">
+                                    aggregation="sum"
+                                >
                                 </bs-value>
                             </h2>
 			    <div class="panel-footer" bs-translate>Aan externe financiering</div>
@@ -98,7 +121,7 @@
 			    <h2 class="bs-infoheader">
                                 <bs-value
                                     list="Cases"
-                                    field="CoffeeConsumed"
+                                    field="FTE"
                                     aggregation="sum"
                                 ></bs-value></h2>
 			    <div class="panel-footer" bs-translate>Full Time Employment</div>
@@ -116,12 +139,12 @@
 		</div>
 		<div class="col-md-2 col-sm-6">
 		    <div class="panel panel-default">
-			<div class="bs-panel-icon"><span class="glyphicon glyphicon-hand-right" aria-hidden="true"></span></div>
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader">
-                               
+                                <bs-clock format="HH:mm:ss"></bs-clock>
                             </h2>
-			    <div class="panel-footer" bs-translate>Doorverwijzingen</div>
+			    <div class="panel-footer"></div>
 			</div>
 		    </div>
 		</div>
@@ -149,7 +172,7 @@
 			    <div class="panel-heading" bs-translate>Funnel chart</div>
 			    
 			    <!--- Begin funnelchart --->
-			    <div class="row">
+			    <div class="row bs-funnel">
 				<div class="col-md-2-bs-funnel">
 				    <table class="funnelcolumn column2">
 					<tr class="column2row"><td bs-translate>Agri & Food</td></tr>
@@ -161,41 +184,41 @@
 				</div>
 				<div class="col-md-3-bs-funnel">
 				    <table class="funnelcolumn column3">
-					<tr class="column3row"><td><bs-value list="Cases" select="Sector = Agri & Food" aggregation="count"></bs-value></td></tr>
-					<tr class="column3row"><td><bs-value list="Cases" select="Sector=Business Services" aggregation="count"></bs-value></td></tr>
-					<tr class="column3row"><td><bs-value list="Cases" select="Sector=Health" aggregation="count"></bs-value></td></tr>
-					<tr class="column3row"><td><bs-value list="Cases" select="Sector=Industrial plastics" aggregation="count"></bs-value></td></tr>
-					<tr class="column3row"><td><bs-value list="Cases" select="Sector=Tech" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Agri & Food" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Business Services" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Health" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Industrial plastics" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Tech" aggregation="count"></bs-value></td></tr>
 					<tr class="column3lastrow"><td bs-translate>Leads</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-4-bs-funnel">
 				    <table class="funnelcolumn column4">
-					<tr class="column4row"><td><bs-value list="Cases" select="Sector=Agri & Food" filter="Phase=4. 2nd level support; Phase=3. 1st level support; Phase=2. Intake" aggregation="count"></bs-value></td></tr>
-					<tr class="column4row"><td><bs-value list="Cases" select="Sector=Business Services" filter="Phase=4. 2nd level support; Phase=3. 1st level support; Phase=2. Intake" aggregation="count"></bs-value></td></tr>
-					<tr class="column4row"><td><bs-value list="Cases" select="Sector=Health" filter="Phase=4. 2nd level support; Phase=3. 1st level support; Phase=2. Intake" aggregation="count"></bs-value></td></tr>
-					<tr class="column4row"><td><bs-value list="Cases" select="Sector=Industrial plastics" filter="Phase=4. 2nd level support; Phase=3. 1st level support; Phase=2. Intake" aggregation="count"></bs-value></td></tr>
-					<tr class="column4row"><td><bs-value list="Cases" select="Sector=Tech" filter="Phase=4. 2nd level support; Phase=3. 1st level support; Phase=2. Intake" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Agri & Food; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Health; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Tech; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
 					<tr class="column4lastrow"><td bs-translate>Intake</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-5-bs-funnel">
 				    <table class="funnelcolumn column5">
-					<tr class="column5row"><td><bs-value list="Cases" select="Sector=Agri & Food" filter="Phase=4. 2nd level support; Phase=3. 1st level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column5row"><td><bs-value list="Cases" select="Sector=Business Services" filter="Phase=4. 2nd level support; Phase=3. 1st level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column5row"><td><bs-value list="Cases" select="Sector=Health" filter="Phase=4. 2nd level support; Phase=3. 1st level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column5row"><td><bs-value list="Cases" select="Sector=Industrial plastics" filter="Phase=4. 2nd level support; Phase=3. 1st level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column5row"><td><bs-value list="Cases" select="Sector=Tech" filter="Phase=4. 2nd level support; Phase=3. 1st level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Agri & Food; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Health; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Tech; Phase~level support" aggregation="count"></bs-value></td></tr>
 					<tr class="column5lastrow"><td bs-translate>Begeleiding</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-6-bs-funnel">
 				    <table class="funnelcolumn column6">
-                                        <tr class="column6row"><td><bs-value list="Cases" select="Sector=Agri & Food" filter="Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column6row"><td><bs-value list="Cases" select="Sector=Business Services" filter="Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column6row"><td><bs-value list="Cases" select="Sector=Health" filter="Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column6row"><td><bs-value list="Cases" select="Sector=Industrial plastics" filter="Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column6row"><td><bs-value list="Cases" select="Sector=Tech" filter="Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+                                        <tr class="column6row"><td><bs-value list="Cases" filter="Sector=Agri & Food; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Health; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Tech; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
 					<tr class="column6lastrow"><td bs-translate>Uitvoering</td></tr>
 				    </table>
 				</div>
@@ -215,9 +238,9 @@
                                         type="PieChart"
                                         list="Cases"
                                         xaxis="Sector"
-                                        yaxis="HonoredFinances"
-                                        options="pie_chart" 
-                                        aggregation="sum"
+                                        yaxis="Phase"
+                                        aggregation="count"
+                                        options="pie_chart"
                                         groupxaxis
                                     >
                                     </bs-chart>
@@ -228,6 +251,16 @@
 			    <div class="panel panel-default">
 				<div class="panel-body">
 				    <div class="panel-heading" bs-translate>Bedrag per Sector</div>
+                                    <bs-chart
+                                        type="Gauge"
+                                        list="Cases"
+                                        xaxis="Sector"
+                                        yaxis="HonoredFinances"
+                                        aggregation="sum"
+                                        options="pie_chart" 
+                                        groupxaxis
+                                    >
+                                    </bs-chart>
 				</div>
 			    </div>
 			</div>
@@ -238,11 +271,11 @@
 				<div class="panel-body">
 				    <div class="panel-heading" bs-translate>Toegewezen FTE</div>
                                     <bs-chart
-                                        type="PieChart"
+                                        type="ColumnChart"
                                         list="Cases"
                                         xaxis="Employee"
                                         yaxis="FTE"
-                                        options="pie_chart" 
+                                        options="column_chart_FTE" 
                                         aggregation="sum"
                                         groupxaxis
                                     >
@@ -272,9 +305,9 @@
                                 yaxis="FTE"
                                 zaxis="Sector"
                                 options="stepped_area_chart"
-                                aggregation="count"
+                                aggregation="sum"
                                 groupxaxis
-                                groupzaxis
+                                groupzaxis 
                             >
                             </bs-chart>
 			</div>
@@ -285,13 +318,13 @@
 			<div class="panel-body">
 			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
                             <bs-chart
-                                type="ColumnChart"
+                                type="ScatterChart"
                                 list="Cases"
                                 xaxis="Phase"
-                                yaxis="FTE"
+                                yaxis="TRLLevel"
                                 zaxis="Sector"
-                                options="column_chart_FTE" 
-                                aggregation="count"
+                                options="column_chart_TRL" 
+                                aggregation="sum"
                                 groupxaxis
                                 groupzaxis
                             >
@@ -300,7 +333,7 @@
 		    </div>
 		</div>
 
-	</div>
+	    </div>
 	</div>
 	<div class="centered" bs-translate>Copyright © 2017 Blue Side</div>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->

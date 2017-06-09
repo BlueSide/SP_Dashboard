@@ -27,7 +27,7 @@ var translationStrings = {
     "Aangevraagd bedrag": "Amount sought",
     "Dashboard": "Dashboard",
     "Live update:": "Live update:",
-    "Copyright © 2016 Blue Side": "Copyright © 2016 Blue Side",
+    "Copyright © 2017 Blue Side": "Copyright © 2017 Blue Side",
     "Gemiddelde TRL per fase": "Average TRL per phase",
     "Percentage aangevraagd per sector": "Percentage sought per sector"
 };
