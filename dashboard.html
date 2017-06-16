@@ -19,27 +19,27 @@
 	<!-- AngularJS -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 
-	<!-- SharePoint context -->
-	<script type="text/javascript">RegisterSod("sp.js", "\u002f_layouts\u002f15\u002fsp.js?rev=IT28aftC77u0G2upAeydwg\u00253D\u00253D");RegisterSodDep("sp.js", "sp.runtime.js");RegisterSodDep("sp.js", "sp.ui.dialog.js");RegisterSodDep("sp.js", "sp.res.resx");</script>
-
 	<!-- Stylesheets -->
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
 	
 	<script src="src/app.js"></script>
-	<script src="src/totals.js"></script>
 	<script src="src/bsToolbox.js"></script>
 	<script src="src/directives.js"></script>
-	<script src="src/locale-en.js"></script>
+	<script src="src/aggregations.js"></script>
+	<script src="src/settings.js"></script>
+	<script src="src/locale_codes.js"></script>
+	<script src="templates/filters.js"></script>
 	<script src="templates/templates.js"></script>
 	
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	
+        	
     </head>
     <body>
         <div class="bs-container">
 	    <nav class="navbar navbar-default">
 		<div class="container-fluid">
 		    <ul class="nav navbar-nav">
+<<<<<<< HEAD
 			<li class="active"><a href="../../SitePages/Home.aspx">Top level</a></li>
             <li class="dropdown">
 			    <a class="dropdown-toggle" data-toggle="dropdown" href="#">CLC's<span class="caret"></span></a>
@@ -65,12 +65,46 @@
 			    <div class="bs-check-label">Live update:</div>
 			    <input type="checkbox" value="None" id="slideThree" name="check" ng-model="cbLiveUpdate" ng-click="onLiveUpdateClick()"/>
 			    <label for="slideThree"></label>
+=======
+			<li class="active"><a href="#">Dashboard</a></li>
+			<li class="dropdown">
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#" >Lijsten<span class="caret"></span></a>
+			    <ul class="dropdown-menu">
+				<li><a href="https://bluesidenl.sharepoint.com/Lists/Cases/AllItems.aspx" >Dossiers</a></li>
+				<li><a href="https://bluesidenl.sharepoint.com/Lists/Equity/AllItems.aspx" >Equity</a></li>
+			    </ul>
+			</li>
+                    </ul>
+		    <ul class="nav navbar-nav navbar-right">
+			<div class="live-update-slider">
+			    <div class="bs-check-label" >Live update:</div>
+			    <input type="checkbox" value="None" id="live-update-slider" name="check" ng-model="cbLiveUpdate" ng-click="onLiveUpdateClick()"/>
+			    <label for="live-update-slider"></label>
+>>>>>>> develop
 			</div>
 		    </ul>
 		</div>
 	    </nav>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="panel panel-default">
+		        <div class="panel-body">
+			    <div class="panel-heading" >Table test</div>
+                            <div class="table-responsive text-left">
+                                <bs-table
+                                     list="Cases"
+                                     fields="Phase; Sector; TRLLevel; Employee; StartDate; HonoredFinances"
+                                     rowlimit="10"
+                                ></bs-table>
+                            </div>
+		        </div>
+		    </div>
+                </div>
+            </div>
 	    
 	    <div class="row">
+<<<<<<< HEAD
 		<div class="col-md-3 col-sm-6">
                     <a href="../../Lists/Projects/Realized%20FTE%20%20CLC%20Central.aspx">
 		        <div class="panel panel-default">
@@ -114,12 +148,95 @@
 			    </div>
 		        </div>
                     </a>
+=======
+		<div class="col-md-2 col-sm-6">
+		    <div class="panel panel-default">
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-ok" aria-hidden="true"></span></div>
+			<div class="panel-body">
+			    <h2 class="bs-infoheader">
+                                <bs-value
+                                    list="Cases"
+                                    field="HonoredFinances"
+                                    filter="f:testfilter"
+                                    aggregation="count">
+                                </bs-value>
+                            </h2>
+			    <div class="panel-footer" >Succesvol ondersteund</div>
+			</div>
+		    </div> 
+		</div>
+		<div class="col-md-2 col-sm-6">
+		    <div class="panel panel-default">
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-euro" aria-hidden="true"></span></div>
+			<div class="panel-body">
+			    <h2 class="bs-infoheader">
+                                <bs-value
+                                    list="Cases"
+                                    field="HonoredFinances"
+                                    aggregation="sum"
+                                >
+                                </bs-value>
+                            </h2>
+			    <div class="panel-footer" >Aan externe financiering</div>
+			</div>
+		    </div>
+		</div>
+		<div class="col-md-2 col-sm-6">
+		    <div class="panel panel-default">
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
+			<div class="panel-body">
+			    <h2 class="bs-infoheader">
+                                <bs-value
+                                    list="Cases"
+                                    field="FTE"
+                                    aggregation="sum"
+                                ></bs-value></h2>
+			    <div class="panel-footer" >Full Time Employment</div>
+			</div>
+		    </div>
+		</div>
+		<div class="col-md-2 col-sm-6">
+		    <div class="panel panel-default">
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tree-deciduous" aria-hidden="true"></span></div>
+			<div class="panel-body">
+			    <h2 class="bs-infoheader">212 ton</h2>
+			    <div class="panel-footer" >CO2 besparing</div>
+			</div>
+		    </div>
+		</div>
+		<div class="col-md-2 col-sm-6">
+		    <div class="panel panel-default">
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-time" aria-hidden="true"></span></div>
+			<div class="panel-body">
+			    <h2 class="bs-infoheader">
+                                <bs-clock format="HH:mm:ss"></bs-clock>
+                            </h2>
+			    <div class="panel-footer"></div>
+			</div>
+		    </div>
+		</div>
+		<div class="col-md-2 col-sm-6">
+		    <div class="panel panel-default">
+			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tint" aria-hidden="true"></span></div>
+			<div class="panel-body">
+			    <h2 class="bs-infoheader">
+                                <bs-value
+                                    list="Cases"
+                                    field="CoffeeConsumed"
+                                    aggregation="sum"
+                                ></bs-value>
+                            </h2>
+			    <div class="panel-footer" >Liters koffie</div>
+			</div>
+		    </div>
+>>>>>>> develop
 		</div>
 	    </div>
 	    
 	    <div class="row">
 		<div class="col-md-6">
 		    <div class="panel panel-default" style="display:table;">
+<<<<<<< HEAD
 			<div class="panel-body bs-removewhitespace">
 			    <div class="panel-heading">Funnel chart</div>
 			    
@@ -131,37 +248,79 @@
 					<tr class="column2row"><td>Non-metallic minerals industries</td></tr>
 					<tr class="column2row"><td>Forest-based industries</td></tr>
 					<tr class="column2row"><td>Minerals and non-energy extractive industries</td></tr>
+=======
+			<div class="panel-body">
+			    <div class="panel-heading" >Funnel chart</div>
+			    
+			    <!--- Begin funnelchart --->
+			    <div class="row bs-funnel">
+				<div class="col-md-2-bs-funnel">
+				    <table class="funnelcolumn column2">
+					<tr class="column2row"><td >Agri & Food</td></tr>
+					<tr class="column2row"><td >Dienstverlening</td></tr>
+					<tr class="column2row"><td >Health</td></tr>
+					<tr class="column2row"><td >Kunststof</td></tr>
+					<tr class="column2row"><td >Tech</td></tr>
+>>>>>>> develop
 				    </table>
 				</div>
 				<div class="col-md-3-bs-funnel">
 				    <table class="funnelcolumn column3">
+<<<<<<< HEAD
 					<tr class="column3row"><td><bs-funnel-value url="Scouting  Metal industries  CLC Central" list="Projects" view="ScoutingMetalIndustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value url="Scouting  Nonmetallic minerals industries  CLC Central" list="Projects" view="ScoutingNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value url="Scouting  Forestbased industries  CLC Central" list="Projects" view="ScoutingForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column3row"><td><bs-funnel-value url="Scouting  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="ScoutingMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column3lastrow"><td><a href="../../Lists/Projects/scouting.aspx">1. Scouting</a></td></tr>
+=======
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Agri & Food" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Business Services" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Health" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Industrial plastics" aggregation="count"></bs-value></td></tr>
+					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Tech" aggregation="count"></bs-value></td></tr>
+					<tr class="column3lastrow"><td >Leads</td></tr>
+>>>>>>> develop
 				    </table>
 				</div>
 				<div class="col-md-4-bs-funnel">
 				    <table class="funnelcolumn column4">
+<<<<<<< HEAD
                                         <tr class="column4row"><td><bs-funnel-value url="Screening  Metal industries  CLC Central" list="Projects" view="ScreeningMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column4row"><td><bs-funnel-value url="Screening  Nonmetallic minerals industries  CLC Central" list="Projects" view="ScreeningNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column4row"><td><bs-funnel-value url="Screening  Forestbased industries  CLC Central" list="Projects" view="ScreeningForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column4row"><td><bs-funnel-value url="Screening  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="ScreeningMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column4lastrow"><td><a href="../../Lists/Projects/screening.aspx">2. Screening</a></td></tr>
+=======
+					<tr class="column4row"><td><bs-value list="Cases" operator="AND" filter="Sector=Agri & Food; Phase = 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Health; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Tech; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4lastrow"><td >Intake</td></tr>
+>>>>>>> develop
 				    </table>
 				</div>
 				<div class="col-md-5-bs-funnel">
 				    <table class="funnelcolumn column5">
+<<<<<<< HEAD
 					<tr class="column5row"><td><bs-funnel-value url="Intake  Metal industries  CLC Central" list="Projects" view="IntakeMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column5row"><td><bs-funnel-value url="Intake  Nonmetallic minerals industries  CLC Central" list="Projects" view="IntakeNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column5row"><td><bs-funnel-value url="Intake  Forestbased industries  CLC Central" list="Projects" view="IntakeForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column5row"><td><bs-funnel-value url="Intake  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="IntakeMineralsandnonenergyextractiveindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column5lastrow"><td><a href="../../Lists/Projects/intake.aspx">3. Intake</a></td></tr>
+=======
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Agri & Food; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Health; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Tech; Phase~level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column5lastrow"><td >Begeleiding</td></tr>
+>>>>>>> develop
 				    </table>
 				</div>
 				<div class="col-md-6-bs-funnel">
 				    <table class="funnelcolumn column6">
+<<<<<<< HEAD
 					<tr class="column6row"><td><bs-funnel-value url="Support  Metal industries  CLC Central" list="Projects" view="SupportMetalindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column6row"><td><bs-funnel-value url="Support  Nonmetallic minerals industries  CLC Central" list="Projects" view="SupportNonmetallicmineralsindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column6row"><td><bs-funnel-value url="Support  Forestbased industries  CLC Central" list="Projects" view="SupportForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
@@ -176,6 +335,14 @@
 					<tr class="column7row"><td><bs-funnel-value url="Evaluation  Forestbased industries  CLC Central" list="Projects" view="EvaluationForestbasedindustriescounter_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column7row"><td><bs-funnel-value url="Evaluation  Minerals and nonenergy extractive industries  CLC Central" list="Projects" view="EvaluationMineralsandnonenergyextractiveindustries_CLCCentral" aggregation="COUNT"></bs-funnel-value></td></tr>
 					<tr class="column7lastrow"><td><a href="../../Lists/Projects/evaluation.aspx">5. Evaluation</a></td></tr>
+=======
+                                        <tr class="column6row"><td><bs-value list="Cases" filter="Sector=Agri & Food; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Health; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Tech; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
+					<tr class="column6lastrow"><td >Uitvoering</td></tr>
+>>>>>>> develop
 				    </table>
 				</div>
 			    </div>
@@ -190,16 +357,44 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
+<<<<<<< HEAD
 				    <div class="panel-heading">Projects per Sector</div>
 				    <bs-chart type="PieChart" list="Projects" view="ProjectsPerSector_CLCCentral" aggregation="COUNT" url="../../Lists/Projects/ProjectsPerSector_CLCCentral.aspx" options="pie_chart"></bs-chart>
+=======
+				    <div class="panel-heading" >Aantal aanvragen per sector</div>
+				    <bs-chart
+                                        type="PieChart"
+                                        list="Cases"
+                                        xaxis="Sector"
+                                        yaxis="Phase"
+                                        aggregation="count"
+                                        options="pie_chart"
+                                        groupxaxis
+                                    >
+                                    </bs-chart>
+>>>>>>> develop
 				</div>
 			    </div>
 			</div>
                         <div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
+<<<<<<< HEAD
 				    <div class="panel-heading">Projects assigned</div>
 				    <bs-chart type="ColumnChart" list="Projects" view="ProjectsPerUser_CLCCentral" options="column_chart_FTE" url="../../Lists/Projects/ProjectsPerUser_CLCCentral.aspx" category="Projects"></bs-chart>
+=======
+				    <div class="panel-heading" >Bedrag per Sector</div>
+                                    <bs-chart
+                                        type="Gauge"
+                                        list="Cases"
+                                        xaxis="Sector"
+                                        yaxis="HonoredFinances"
+                                        aggregation="sum"
+                                        options="pie_chart" 
+                                        groupxaxis
+                                    >
+                                    </bs-chart>
+>>>>>>> develop
 				</div>
 			    </div>
 			</div>
@@ -209,22 +404,43 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
+<<<<<<< HEAD
 				    <div class="panel-heading">Requested fund types</div>
 				    <bs-chart type="PieChart" title="Count" list="Projects" view="ProjectsPerRequestedFundingType_CLCCentral" options="pie_chart" url="../../Lists/Projects/ProjectsPerRequestedFundingType_CLCCentral.aspx"></bs-chart>
+=======
+				    <div class="panel-heading" >Toegewezen FTE</div>
+                                    <bs-chart
+                                        type="ColumnChart"
+                                        list="Cases"
+                                        xaxis="Employee"
+                                        yaxis="FTE"
+                                        options="column_chart_FTE" 
+                                        aggregation="sum"
+                                        groupxaxis
+                                    >
+                                    </bs-chart>
+>>>>>>> develop
 				</div>
 			    </div>
 			</div>
 		        <div class="col-md-6">
 			    <div class="panel panel-default">
+<<<<<<< HEAD
 			        <div class="panel-body">
 				    <div class="panel-heading">Realized fund types</div>
 				    <bs-chart type="PieChart" title="Count" list="Projects" view="ProjectsPerRealizedFundingType_CLCCentral" options="pie_chart" url="../../Lists/Projects/ProjectsPerRealizedFundingType_CLCCentral.aspx"></bs-chart>
 			        </div>
+=======
+				<div class="panel-body">
+				    <div class="panel-heading" >Percentage aangevraagd per sector</div>
+				</div>
+>>>>>>> develop
 			    </div>
 		        </div>
 		    </div>
 		</div>
 	    </div>
+<<<<<<< HEAD
 
             <div class="row">
                 <div class="col-md-12">
@@ -262,6 +478,49 @@
             </div>           
 	</div>
 	<div class="centered">Copyright © 2017 Blue Side</div>
+=======
+	    <div class="row">
+		<div class="col-md-6">
+		    <div class="panel panel-default">
+			<div class="panel-body">
+			    <div class="panel-heading" >Aangevraagd bedrag</div>
+                            <bs-chart
+                                type="SteppedAreaChart"
+                                list="Cases"
+                                xaxis="Phase"
+                                yaxis="FTE"
+                                zaxis="Sector"
+                                options="stepped_area_chart"
+                                aggregation="sum"
+                                groupxaxis
+                                groupzaxis 
+                            >
+                            </bs-chart>
+			</div>
+		    </div>
+		</div>
+		<div class="col-md-6">
+		    <div class="panel panel-default">
+			<div class="panel-body">
+			    <div class="panel-heading" >Gemiddelde TRL per fase</div>
+                            <bs-chart
+                                type="Map"
+                                list="Cases"
+                                xaxis="Country"
+                                yaxis="FTE"
+                                options="column_chart_TRL" 
+                                aggregation="count"
+                                groupxaxis
+                            >
+                            </bs-chart>
+			</div>
+		    </div>
+		</div>
+
+	    </div>
+	</div>
+	<div class="centered" >Copyright © 2017 Blue Side</div>
+>>>>>>> develop
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->

@@ -8,6 +8,9 @@ _*
 *.mp4
 *.gif
 
+# ignore the info folder
+bs-info
+
 # ignore TypeScript generated files
 node_modules
 
