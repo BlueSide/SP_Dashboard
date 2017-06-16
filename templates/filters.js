@@ -3,11 +3,11 @@ var testfilter = {
         {
             filters: [
                 "Sector = Agri & Food",
-                "Sector = Business Services"
+                "Sector = Health",
             ],
-            operator: "AND"  
+            operator: "OR"
         },
         "Phase = 4. 2nd level support"
     ],
-    operator: "OR"
+    operator: "AND"
 };

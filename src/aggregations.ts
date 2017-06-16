@@ -16,8 +16,19 @@ function getSum(data: number[]): number
     return null;
 }
 
-function getCount(data): number
+function getCount(data: any[]): number
 {
+    // Get the old length
+    let length:number = data.length;
+    for(let i:number = 0; i < length; ++i)
+    {
+        // Push to the end of the array if the item is not null or undefined
+        data[i] && data.push(data[i]);
+    }
+    // Cut away the old array from the beginning
+    data.splice(0, length);
+
+    // Return the new length
     return data.length;
 }
 

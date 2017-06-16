@@ -2,8 +2,14 @@ module.directive("bsValue", ["SPData", function(SPData) {
     var _spData = SPData;
     return {
 	restrict: "E",
-        scope: true,
+        scope: {
+            test: '='
+        },
 	link: function($scope, element, attributes) {
+
+            // NOTE: for optional filtering controlled outside of this directive
+            var rootFilter:any = {};
+            
             var listPromise = SPData.registerList(attributes.list);
 
             $scope.$on(attributes.list + '.ready', function (msg, args) {
@@ -21,7 +27,6 @@ module.directive("bsValue", ["SPData", function(SPData) {
                 let listData = newData.listData.data.d.results;
                 let fieldData = newData.fieldData.data.d.results;
                 
-                // NOTE: Filters work through an 'AND' condition
                 var filters: any;            
                 if(attributes.filter)
                 {
@@ -33,7 +38,7 @@ module.directive("bsValue", ["SPData", function(SPData) {
                     }
                     else
                     {
-                        filters = filterStringToObject(attributes.filter);
+                        filters = filterStringToObject(attributes.filter, attributes.operator);
                     }
                 }
 
@@ -45,15 +50,21 @@ module.directive("bsValue", ["SPData", function(SPData) {
                 let aggregationFunction = getAggregationFunction(attributes.aggregation);
                 resultValue = aggregationFunction(data);
 
-                
                 let fieldType = getFieldType(attributes.field, fieldData);
                 switch(fieldType)
                 {
                 case 'Currency':
-                    $scope.value = resultValue.toLocaleString(
-                        LocaleCodes[getFieldByTitle(attributes.field, fieldData).CurrencyLocaleId],
-                        {minimumFractionDigits: 2}
-                    );
+                    if(attributes.aggregation !== 'count')
+                    {
+                        $scope.value = resultValue.toLocaleString(
+                            LocaleCodes[getFieldByTitle(attributes.field, fieldData).CurrencyLocaleId],
+                            {minimumFractionDigits: 2}
+                        );
+                    }
+                    else
+                    {
+                        $scope.value = resultValue;
+                    }
                     break;
                 default:
                     $scope.value = resultValue;
@@ -79,7 +90,7 @@ module.directive("bsValue", ["SPData", function(SPData) {
 
             }
         },
-	template: '<span>{{value}}</span><span class="{{icon}}"></span>'
+	templateUrl: 'templates/value.html'
 	
     };
 }]);
@@ -144,7 +155,7 @@ module.directive("bsChart", ["$q", "SPData", "GCLoader", function($q, SPData, GC
 
                 let data: any[] = [];
 
-                 let fieldTypeX = getGoogleType(getFieldType(attributes.xaxis, fieldData));
+                let fieldTypeX = getGoogleType(getFieldType(attributes.xaxis, fieldData));
                 let fieldTypeY = getGoogleType(getFieldType(attributes.yaxis, fieldData));
                 let fieldTypeZ = getGoogleType(getFieldType(attributes.zaxis, fieldData));
                 
@@ -266,7 +277,8 @@ module.directive("bsTable", ["$q", "SPData", function($q, SPData) {
 
                 let tableData = [];
 
-                if(typeof attributes.rowlimit !== 'undefined')
+                // NOTE: If defined, use the rowlimit attribute in stead of data length
+                if(typeof attributes.rowlimit !== 'undefined' && tableLength >= attributes.rowlimit)
                 {
                     tableLength = attributes.rowlimit;
                 }

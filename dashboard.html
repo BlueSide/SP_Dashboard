@@ -19,14 +19,6 @@
 	<!-- AngularJS -->
 	<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
 
-	<!-- SharePoint context -->
-	<script type="text/javascript">
-         RegisterSod("sp.js", "\u002f_layouts\u002f15\u002fsp.js?rev=IT28aftC77u0G2upAeydwg\u00253D\u00253D");
-         RegisterSodDep("sp.js", "sp.runtime.js");
-         RegisterSodDep("sp.js", "sp.ui.dialog.js");
-         RegisterSodDep("sp.js", "sp.res.resx");
-        </script>
-
 	<!-- Stylesheets -->
 	<link href="css/style.css" rel="stylesheet" type="text/css" />
 	
@@ -34,29 +26,31 @@
 	<script src="src/bsToolbox.js"></script>
 	<script src="src/directives.js"></script>
 	<script src="src/aggregations.js"></script>
+	<script src="src/settings.js"></script>
+	<script src="src/locale_codes.js"></script>
 	<script src="templates/filters.js"></script>
 	<script src="templates/templates.js"></script>
 	
 	<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
-	
+        	
     </head>
     <body>
         <div class="bs-container">
 	    <nav class="navbar navbar-default">
 		<div class="container-fluid">
 		    <ul class="nav navbar-nav">
-			<li class="active"><a href="#" bs-translate>Dashboard</a></li>
+			<li class="active"><a href="#">Dashboard</a></li>
 			<li class="dropdown">
-			    <a class="dropdown-toggle" data-toggle="dropdown" href="#" bs-translate>Lijsten<span class="caret"></span></a>
+			    <a class="dropdown-toggle" data-toggle="dropdown" href="#" >Lijsten<span class="caret"></span></a>
 			    <ul class="dropdown-menu">
-				<li><a href="https://bluesidenl.sharepoint.com/Lists/Cases/AllItems.aspx" bs-translate>Dossiers</a></li>
-				<li><a href="https://bluesidenl.sharepoint.com/Lists/Equity/AllItems.aspx" bs-translate>Equity</a></li>
+				<li><a href="https://bluesidenl.sharepoint.com/Lists/Cases/AllItems.aspx" >Dossiers</a></li>
+				<li><a href="https://bluesidenl.sharepoint.com/Lists/Equity/AllItems.aspx" >Equity</a></li>
 			    </ul>
 			</li>
-		    </ul>
+                    </ul>
 		    <ul class="nav navbar-nav navbar-right">
 			<div class="live-update-slider">
-			    <div class="bs-check-label" bs-translate>Live update:</div>
+			    <div class="bs-check-label" >Live update:</div>
 			    <input type="checkbox" value="None" id="live-update-slider" name="check" ng-model="cbLiveUpdate" ng-click="onLiveUpdateClick()"/>
 			    <label for="live-update-slider"></label>
 			</div>
@@ -68,7 +62,7 @@
                 <div class="col-md-12">
                     <div class="panel panel-default">
 		        <div class="panel-body">
-			    <div class="panel-heading" bs-translate>Table test</div>
+			    <div class="panel-heading" >Table test</div>
                             <div class="table-responsive text-left">
                                 <bs-table
                                      list="Cases"
@@ -89,12 +83,12 @@
 			    <h2 class="bs-infoheader">
                                 <bs-value
                                     list="Cases"
-                                    field="Phase"
+                                    field="HonoredFinances"
                                     filter="f:testfilter"
                                     aggregation="count">
                                 </bs-value>
                             </h2>
-			    <div class="panel-footer" bs-translate>Succesvol ondersteund</div>
+			    <div class="panel-footer" >Succesvol ondersteund</div>
 			</div>
 		    </div> 
 		</div>
@@ -110,7 +104,7 @@
                                 >
                                 </bs-value>
                             </h2>
-			    <div class="panel-footer" bs-translate>Aan externe financiering</div>
+			    <div class="panel-footer" >Aan externe financiering</div>
 			</div>
 		    </div>
 		</div>
@@ -124,7 +118,7 @@
                                     field="FTE"
                                     aggregation="sum"
                                 ></bs-value></h2>
-			    <div class="panel-footer" bs-translate>Full Time Employment</div>
+			    <div class="panel-footer" >Full Time Employment</div>
 			</div>
 		    </div>
 		</div>
@@ -133,7 +127,7 @@
 			<div class="bs-panel-icon"><span class="glyphicon glyphicon-tree-deciduous" aria-hidden="true"></span></div>
 			<div class="panel-body">
 			    <h2 class="bs-infoheader">212 ton</h2>
-			    <div class="panel-footer" bs-translate>CO2 besparing</div>
+			    <div class="panel-footer" >CO2 besparing</div>
 			</div>
 		    </div>
 		</div>
@@ -159,7 +153,7 @@
                                     aggregation="sum"
                                 ></bs-value>
                             </h2>
-			    <div class="panel-footer" bs-translate>Liters koffie</div>
+			    <div class="panel-footer" >Liters koffie</div>
 			</div>
 		    </div>
 		</div>
@@ -169,17 +163,17 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default" style="display:table;">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Funnel chart</div>
+			    <div class="panel-heading" >Funnel chart</div>
 			    
 			    <!--- Begin funnelchart --->
 			    <div class="row bs-funnel">
 				<div class="col-md-2-bs-funnel">
 				    <table class="funnelcolumn column2">
-					<tr class="column2row"><td bs-translate>Agri & Food</td></tr>
-					<tr class="column2row"><td bs-translate>Dienstverlening</td></tr>
-					<tr class="column2row"><td bs-translate>Health</td></tr>
-					<tr class="column2row"><td bs-translate>Kunststof</td></tr>
-					<tr class="column2row"><td bs-translate>Tech</td></tr>
+					<tr class="column2row"><td >Agri & Food</td></tr>
+					<tr class="column2row"><td >Dienstverlening</td></tr>
+					<tr class="column2row"><td >Health</td></tr>
+					<tr class="column2row"><td >Kunststof</td></tr>
+					<tr class="column2row"><td >Tech</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-3-bs-funnel">
@@ -189,17 +183,17 @@
 					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Health" aggregation="count"></bs-value></td></tr>
 					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Industrial plastics" aggregation="count"></bs-value></td></tr>
 					<tr class="column3row"><td><bs-value list="Cases" filter="Sector=Tech" aggregation="count"></bs-value></td></tr>
-					<tr class="column3lastrow"><td bs-translate>Leads</td></tr>
+					<tr class="column3lastrow"><td >Leads</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-4-bs-funnel">
 				    <table class="funnelcolumn column4">
-					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Agri & Food; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
+					<tr class="column4row"><td><bs-value list="Cases" operator="AND" filter="Sector=Agri & Food; Phase = 1. Lead" aggregation="count"></bs-value></td></tr>
 					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Business Services; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
 					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Health; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
 					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
 					<tr class="column4row"><td><bs-value list="Cases" filter="Sector=Tech; Phase != 1. Lead" aggregation="count"></bs-value></td></tr>
-					<tr class="column4lastrow"><td bs-translate>Intake</td></tr>
+					<tr class="column4lastrow"><td >Intake</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-5-bs-funnel">
@@ -209,7 +203,7 @@
 					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Health; Phase~level support" aggregation="count"></bs-value></td></tr>
 					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase~level support" aggregation="count"></bs-value></td></tr>
 					<tr class="column5row"><td><bs-value list="Cases" filter="Sector=Tech; Phase~level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column5lastrow"><td bs-translate>Begeleiding</td></tr>
+					<tr class="column5lastrow"><td >Begeleiding</td></tr>
 				    </table>
 				</div>
 				<div class="col-md-6-bs-funnel">
@@ -219,7 +213,7 @@
 					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Health; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
 					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Industrial plastics; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
 					<tr class="column6row"><td><bs-value list="Cases" filter="Sector=Tech; Phase=4. 2nd level support" aggregation="count"></bs-value></td></tr>
-					<tr class="column6lastrow"><td bs-translate>Uitvoering</td></tr>
+					<tr class="column6lastrow"><td >Uitvoering</td></tr>
 				    </table>
 				</div>
 			    </div>
@@ -233,7 +227,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Aantal aanvragen per sector</div>
+				    <div class="panel-heading" >Aantal aanvragen per sector</div>
 				    <bs-chart
                                         type="PieChart"
                                         list="Cases"
@@ -250,7 +244,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Bedrag per Sector</div>
+				    <div class="panel-heading" >Bedrag per Sector</div>
                                     <bs-chart
                                         type="Gauge"
                                         list="Cases"
@@ -269,7 +263,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Toegewezen FTE</div>
+				    <div class="panel-heading" >Toegewezen FTE</div>
                                     <bs-chart
                                         type="ColumnChart"
                                         list="Cases"
@@ -286,7 +280,7 @@
 			<div class="col-md-6">
 			    <div class="panel panel-default">
 				<div class="panel-body">
-				    <div class="panel-heading" bs-translate>Percentage aangevraagd per sector</div>
+				    <div class="panel-heading" >Percentage aangevraagd per sector</div>
 				</div>
 			    </div>
 			</div>
@@ -297,7 +291,7 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Aangevraagd bedrag</div>
+			    <div class="panel-heading" >Aangevraagd bedrag</div>
                             <bs-chart
                                 type="SteppedAreaChart"
                                 list="Cases"
@@ -316,17 +310,15 @@
 		<div class="col-md-6">
 		    <div class="panel panel-default">
 			<div class="panel-body">
-			    <div class="panel-heading" bs-translate>Gemiddelde TRL per fase</div>
+			    <div class="panel-heading" >Gemiddelde TRL per fase</div>
                             <bs-chart
-                                type="ScatterChart"
+                                type="Map"
                                 list="Cases"
-                                xaxis="Phase"
-                                yaxis="TRLLevel"
-                                zaxis="Sector"
+                                xaxis="Country"
+                                yaxis="FTE"
                                 options="column_chart_TRL" 
-                                aggregation="sum"
+                                aggregation="count"
                                 groupxaxis
-                                groupzaxis
                             >
                             </bs-chart>
 			</div>
@@ -335,7 +327,7 @@
 
 	    </div>
 	</div>
-	<div class="centered" bs-translate>Copyright © 2017 Blue Side</div>
+	<div class="centered" >Copyright © 2017 Blue Side</div>
 	<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 	<!-- Include all compiled plugins (below), or include individual files as needed -->

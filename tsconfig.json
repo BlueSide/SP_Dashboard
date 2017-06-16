@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
 	"outDir": "//bluesidenl.sharepoint.com@SSL/SitePages/src",
-	"allowJs": false,
+	"allowJs": true,
         "target": "es5"
     },
     "include": [

@@ -4,23 +4,12 @@ declare var angular: any;
 declare var google: any;
 var module = angular.module('bsDashboard', []);
 
-var Settings: any = {
-    webURL: "https://bluesidenl.sharepoint.com",
-    web: "",
-    updateInterval: 1000,
-    modifiedField: 'Modified', // SharePoint field containing the timestamp it had been modified last
-    updatedDataFadeOutTime: 20000
+interface FilterObj {
+    filters: any[];
+    operator: string;
 }
 
-var LocaleCodes = {
-    1031: "de-DE",
-    1033: "en-US",
-    2057: "en-UK",
-    2067: "nl-BE",
-    1043: "nl-NL",
-};
-
-interface filter {
+interface Filter {
     field: string;
     value: string;
     operator: string;
@@ -46,6 +35,11 @@ module.controller('initController', ['$scope', '$q', '$interval', 'SPData', func
         }
     }
 
+    $scope.onFilterTestClick = function(): void
+    {
+        console.log($scope.cbFilterTest);
+    }
+    
     $scope.startLiveUpdate = function (): void
     {
         setCookie("liveUpdate", $scope.cbLiveUpdate, 30);
@@ -90,6 +84,37 @@ module.controller('initController', ['$scope', '$q', '$interval', 'SPData', func
     }
     
 }]);
+
+module.service('GCLoader', function($q) {
+
+    //TODO: Move to GC service
+    // Array with promises to Google Charts
+    var registeredChartUsers: any[] = [];
+
+    // NOTE: 'map' package is loaded optionally. Decreases initial page load performance
+    let chartPackages: string[] = ['corechart'];
+    if(Settings.loadGoogleMaps)
+    {
+        chartPackages.push('map');
+    }
+    // Initialize Google Charts
+    google.charts.load('current', {'packages': chartPackages, mapsApiKey: Settings.mapsApiKey});
+    google.charts.setOnLoadCallback(function() {
+        for(let deferred of registeredChartUsers)
+        {
+            deferred.resolve('gc loaded');
+        }
+    });
+    
+    
+    this.register = function(): any
+    {
+        var deferred = $q.defer();
+        registeredChartUsers.push(deferred);
+        // TODO: Return a Wrapper object?
+        return deferred.promise;
+    }
+});
 
 // TODO: Optimize further: Only request registered fields
 module.service('SPData', function($http, $q) {
@@ -211,31 +236,6 @@ module.service('SPData', function($http, $q) {
     }
 });
 
-module.service('GCLoader', function($q) {
-
-    //TODO: Move to GC service
-    // Array with promises to Google Charts
-    var registeredChartUsers: any[] = [];
-
-    // Initialize Google Charts
-    google.charts.load('current', {'packages':['corechart']});
-    google.charts.setOnLoadCallback(function() {
-        for(let deferred of registeredChartUsers)
-        {
-            deferred.resolve('gc loaded');
-        }
-    });
-    
-    
-    this.register = function(): any
-    {
-        var deferred = $q.defer();
-        registeredChartUsers.push(deferred);
-        // TODO: Return a Wrapper object?
-        return deferred.promise;
-    }
-});
-
 function getFieldByTitle(title: string, fieldData: any): any
 {
     for(let field of fieldData)
@@ -267,110 +267,109 @@ function getFieldType(title: string, fieldData: any): string
     return null;
 }
 
-function filterItems(filterObj: any, inputData: any[], fieldData: any[]): any[]
+function isEqualSPItem(item1: any, item2: any): boolean
+{
+    if(typeof item1 == 'undefined' || typeof item2 == 'undefined') return false;
+    return item1.GUID === item2.GUID;
+}
+
+function filterItems(filterObj: FilterObj, inputData: any[], fieldData: any[]): any[]
 {
 
     let items: any[] = [];
+    let filterResults: any[] = [];
     
-    if(filterObj.operator === 'AND')
+    for(let filter of filterObj.filters)
     {
-        
-        for(let item of inputData)
+        let filterResult: any[] = [];
+        // If the filter is an object, go one step deeper in the filter tree
+        if(typeof filter == 'object')
         {
-            let isMatch: boolean = true;
-            for(let filter of filterObj.filters)
-            {
-                let filterRule = processFilter(filter);
-                let filterFieldType = getFieldType(filterRule.field, fieldData);
-                
-                // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
-                if(filterFieldType === 'User') filterRule.field += 'Id';
-                
-                if(isFilterMatch(item, filterRule, filterFieldType) === false)
-                {
-                    isMatch = false;
-                    // If one of the filters has a mismatch,
-                    // we don't have to check further.
-                    break;
-                }
-            }
-            
-            if(isMatch)
-            {
-                items.push(item);
-            }
+            filterResult = filterItems(filter, inputData, fieldData);
         }
-    }
-    else if(filterObj.operator === 'OR')
-    {
-        for(let item of inputData)
+        else
         {
-            for(let filter of filterObj.filters)
+            let filterRule = processFilter(filter);
+            let filterFieldType = getFieldType(filterRule.field, fieldData);
+
+            // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
+            if(filterFieldType === 'User') filterRule.field += 'Id';
+            
+            for(let item of inputData)
             {
-                let filterRule = processFilter(filter);
-                let filterFieldType = getFieldType(filterRule.field, fieldData);
-                
-                // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
-                if(filterFieldType === 'User') filterRule.field += 'Id';
-                
                 if(isFilterMatch(item, filterRule, filterFieldType))
                 {
-                    items.push(item);
-                    // if one of the filters has a match
-                    // we don't have to check further
-                    break;
+                    filterResult.push(item);
+                }
+            }
+        }
+
+        filterResults.push(filterResult);
+    }
+
+    if(filterResults.length > 1)
+    {
+        if(filterObj.operator === "AND")
+        {
+            // Put all results in one array
+            let allMatches: any[] = [];
+            for(let filterResult of filterResults)
+            {
+                for(let filteredItem of filterResult)
+                {
+                    allMatches.push(filteredItem);
+                }
+            }
+
+            // Sort all matches
+            function compare(a,b) {
+                if (a.GUID < b.GUID)
+                    return -1;
+                if (a.GUID > b.GUID)
+                    return 1;
+                return 0;
+            }
+            allMatches.sort(compare);
+
+            for(let i = 0; i < allMatches.length; ++i)
+            {
+                // If the item matches the item that is the amount of filters we have ahead,
+                // it means that all the items in between are also that item.
+                // Therefor: All filters match the item and meets the 'AND' condition
+                if(isEqualSPItem(allMatches[i], allMatches[i+filterResults.length-1]))
+                {
+                    items.push(allMatches[i]);
+                }
+            }
+        }
+        else if(filterObj.operator === "OR")
+        {
+            // Add all items of the first filter result
+            for(let filterResult of filterResults)
+            {
+                for(let filteredItem of filterResult)
+                {
+                    if(items.indexOf(filteredItem))
+                    {
+                        items.push(filteredItem);
+                    }
                 }
             }
         }
     }
     else
     {
-        console.warn("Invalid filter operator:", filterObj.operator);
-    }
-    /*
-    if(typeof filter === 'string')
-    {
-        
-        let filterObj =  processFilter(filter);
-        let filterFieldType = getFieldType(filterObj.field, fieldData);
-        
-        // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
-        if(filterFieldType === 'User') filterObj.field += 'Id';
-        for(let item of inputData)
-        {
-            if(isFilterMatch(item, filterObj, filterFieldType))
-            {
-                items.push(item);
-            }
-        }
-    }
-*/
+        items = filterResults[0];
+    }    
     return items;
 }
-/*
-
-    let items: any[] = [];
-    for(let filterString of filterObj.filters)
-    {
-        let filter: filter = processFilter(filterString);
-        let filterFieldType = getFieldType(filter.field, fieldData);
-        
-        // NOTE: Suffix with 'Id' because SharePoint's field data and actual data use different field names\
-        if(filterFieldType === 'User') filter.field += 'Id';
-
-        for(let entry of inputData)
-        {
-            if(isFilterMatch(entry, filter, filterFieldType))
-            {
-                items.push(entry);
-            }
-        }
-    }
-    return items;
-*/
 // return all items from a certain field after selecting and filtering
 function getFieldEntries(fieldName: string, inputData: any[], fieldData: any[], filterObj: any = null): any[]
 {
+    // NOTE: To prevent uncountable, all null arrays, use the "GUID"
+    // field as default fieldName.
+    if(typeof fieldName === 'undefined') fieldName = "GUID";
+
     let fieldType = getFieldType(fieldName, fieldData);
     let items: any[] = [];
 
@@ -403,7 +402,7 @@ function getFieldEntries(fieldName: string, inputData: any[], fieldData: any[], 
     return result;
 }
 
-function isFilterMatch(entry: any, filter: filter, fieldType: string): boolean
+function isFilterMatch(entry: any, filter: Filter, fieldType: string): boolean
 {
     let values: any[] = [];
     if(fieldType !== 'MultiChoice')
@@ -450,20 +449,17 @@ function isFilterMatch(entry: any, filter: filter, fieldType: string): boolean
             break;
         }
 
-        // NOTE: Only one of the values had to me true
-        // to be a match, so on true we return immediately
-        if(isMatch)
-        {
-            return true;
-        }
+        // NOTE: Only one of the values has to be true
+        // to be a match, so on true we can return immediately
+        if(isMatch) return true;
     }
-    // Return false on error
+
     return isMatch;
 }
 
 var regexpOperator = /(=|<|>|!=|<=|>=|~|!~)/;
 
-function processFilter(filterString: string): filter
+function processFilter(filterString: string): Filter
 {
     let filterOperator = regexpOperator.exec(filterString)[0];
     let itemArr: string[] = filterString.trim().split(filterOperator);
@@ -519,10 +515,14 @@ function getAggregationFunction(functionString: string): any
         {
             aggregationFunction = getMin;
         }
+    case 'max':
+        {
+            aggregationFunction = getMax;
+        }
     default:
         {
             //TODO: report who is reporting the error
-            console.warn('bs-value: Aggregation of type '+functionString+' not found.');
+            console.warn('Aggregation of type '+functionString+' not found.');
         } break;
     }
 
